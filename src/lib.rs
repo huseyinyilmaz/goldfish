@@ -1,22 +1,30 @@
 mod handler;
 // use std::io;
-use std::net;
-use std::thread;
+// use std::net;
+// use std::thread;
 use handler::Handler;
 
+use async_std::{
+    prelude::*, // 1
+    task, // 2
+    net::{TcpListener, ToSocketAddrs}, // 3
+};
 
-pub fn run() {
-    let mut threads = Vec::new();
-    let listener = net::TcpListener::bind("127.0.0.1:3306").unwrap();
 
-    while let Ok((s, _)) = listener.accept() {
-        threads.push(thread::spawn(move || {
-            let handler = Handler::new(s);
-            println!("handler: {:?}", handler);
-        }));
+
+async fn accept_loop(addr: impl ToSocketAddrs) -> Result<(), Box<dyn std::error::Error + Send + Sync>> { // 1
+
+    let listener = TcpListener::bind(addr).await?; // 2
+    let mut incoming = listener.incoming();
+    while let Some(Ok(stream)) = incoming.next().await { // 3
+        let handler = Handler::new(stream).await;
+        println!("{:?}", &handler);
+        // TODO
     }
+    Ok(())
+}
 
-    for t in threads {
-        t.join().unwrap();
-    }
+pub fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let fut = accept_loop("127.0.0.1:8080");
+    task::block_on(fut)
 }
