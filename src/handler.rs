@@ -41,14 +41,18 @@ impl Handler {
         // let val = self.read_line().await;
         // println!("val = {}", val);
 
-        let mut lines = BufReader::new(&mut self.stream).split(b'\n');
-        for line in lines.next().await {
-            println!("Line: {:?}", String::from_utf8(line?));
+        let mut continue_loop: bool = true;
+        let mut buf_reader = BufReader::new(&mut self.stream);
+        while continue_loop {
+            let mut buf = Vec::new();
+            println!("read_until");
+            let buf_size = buf_reader.read_until(b'\n', &mut buf).await?;
+            println!("Line: {:?}, buf_size{:?}", String::from_utf8(buf), buf_size);
+            if buf_size == 0 {
+                println!("Stream is closed. Quiting connection.");
+                continue_loop = false;
+            }
         }
-
-
-
-
         Ok(())
     }
 

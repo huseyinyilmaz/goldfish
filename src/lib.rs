@@ -1,4 +1,6 @@
 mod handler;
+mod parser;
+mod command;
 // use std::io;
 // use std::net;
 // use std::thread;
@@ -17,10 +19,10 @@ async fn accept_loop(addr: impl ToSocketAddrs) -> Result<(), Box<dyn std::error:
     let listener = TcpListener::bind(addr).await?; // 2
     let mut incoming = listener.incoming();
     while let Some(Ok(stream)) = incoming.next().await { // 3
-        let handler = Handler::new(stream).await;
-        println!("{:?}", &handler);
-        // TODO
-    }
+        let t = task::spawn(Handler::new(stream));
+        // TODO manage this task.
+        println!("Task started {:?}", &t);
+    };
     Ok(())
 }
 
