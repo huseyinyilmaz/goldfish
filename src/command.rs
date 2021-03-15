@@ -1,5 +1,7 @@
+#[derive(Debug)]
 pub enum Command {
     Version,
+    Quit,
 }
 
 impl Command {
