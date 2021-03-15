@@ -7,7 +7,6 @@ use async_std::io::BufRead;
 use crate::command::Command;
 use async_std::prelude::*;
 
-
 pub struct Parser;
 
 impl Parser {
@@ -15,7 +14,13 @@ impl Parser {
         let mut buf = Vec::new();
         let buf_size = reader.read_until(b'\n', &mut buf).await;
         println!("Reading: {:?}", buf);
-        Some(Command::Version)
+        let version_text: Vec<u8> = b"version\r\n".to_vec();
+        let quit_text: Vec<u8> = b"quit\r\n".to_vec();
+        match buf {
+            txt if txt == version_text => Some(Command::Version),
+            txt if txt == quit_text => Some(Command::Quit),
+            _ => None,
+        }
     }
 
 
