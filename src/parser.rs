@@ -1,8 +1,7 @@
-use async_std::stream::Stream;
+use async_std::io::BufRead;
 use async_std::io::BufReader;
 use async_std::net::TcpStream;
-use async_std::io::BufRead;
-
+use async_std::stream::Stream;
 
 // use async_std::io::BufReadExt;
 // use async_std::io::BufReadExt;
@@ -25,12 +24,10 @@ impl Parser {
         }
     }
 
-
     pub fn new() -> Self {
         Parser
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -62,5 +59,4 @@ mod tests {
         expected = Some(Command::Version);
         assert_eq!(result, expected);
     }
-
 }
