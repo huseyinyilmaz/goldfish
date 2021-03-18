@@ -2,6 +2,8 @@ use async_std::stream::Stream;
 use async_std::io::BufReader;
 use async_std::net::TcpStream;
 use async_std::io::BufRead;
+
+
 // use async_std::io::BufReadExt;
 // use async_std::io::BufReadExt;
 use crate::command::Command;
@@ -27,4 +29,38 @@ impl Parser {
     pub fn new() -> Self {
         Parser
     }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[async_std::test]
+    async fn parse_quit() {
+        let mut input: &[u8] = b"quit\r\n";
+        let result = Parser::parse_command(&mut input).await;
+        let expected = Some(Command::Quit);
+        assert_eq!(result, expected);
+    }
+
+    #[async_std::test]
+    async fn parse_version() {
+        let mut input: &[u8] = b"version\r\n";
+        let result = Parser::parse_command(&mut input).await;
+        let expected = Some(Command::Version);
+        assert_eq!(result, expected);
+    }
+
+    #[async_std::test]
+    async fn parse_quit_and_version() {
+        let mut input: &[u8] = b"quit\r\nversion\r\n";
+        let mut result = Parser::parse_command(&mut input).await;
+        let mut expected = Some(Command::Quit);
+        assert_eq!(result, expected);
+        result = Parser::parse_command(&mut input).await;
+        expected = Some(Command::Version);
+        assert_eq!(result, expected);
+    }
+
 }
