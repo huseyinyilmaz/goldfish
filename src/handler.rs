@@ -49,10 +49,6 @@ impl Handler {
                 None => b"CLIENT_ERROR could not recognize command",
                 _ => b"SERVER_ERROR not implemented",
             };
-            let bytes_written = &buf_writer
-                .write(b"XXXXXXXXX Here is what we want to write\n\r")
-                .await?;
-            println!("bytes-written = {}", bytes_written);
             let bytes_written = &buf_writer.write(&result).await?;
             println!("bytes-written = {}", bytes_written);
             //let bytes_written = &buf_writer.write(&[b'\r', b'\n']).await?;
