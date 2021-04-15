@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 async-std = {version = "1.9", features = ["attributes"]}
+
+nom = "6.1.2"

@@ -4,9 +4,34 @@ use async_std::net::TcpStream;
 use async_std::stream::Stream;
 // use async_std::io::BufReadExt;
 // use async_std::io::BufReadExt;
+use nom::{
+    branch::alt,
+    bytes::complete,
+    eof,
+    error::{context, convert_error, ContextError, ErrorKind, ParseError, VerboseError},
+    sequence::tuple,
+    // combinator::alt,
+    IResult,
+};
 
 use crate::command::Command;
 use async_std::prelude::*;
+
+pub fn parse_version(input: &[u8]) -> IResult<&[u8], Command> {
+    let (input, (_, _)) =
+        tuple((complete::tag(&b"version"[..]), complete::tag(&b"\r\n"[..])))(input)?;
+    Ok((input, Command::Version))
+}
+
+pub fn parse_quit(input: &[u8]) -> IResult<&[u8], Command> {
+    let (input, (_, _)) = tuple((complete::tag(&b"quit"[..]), complete::tag(&b"\r\n"[..])))(input)?;
+    Ok((input, Command::Quit))
+}
+
+pub fn parse(input: &[u8]) -> IResult<&[u8], Command> {
+    let mut parser = alt((parse_version, parse_quit));
+    parser(input)
+}
 
 pub struct Parser;
 
@@ -17,11 +42,17 @@ impl Parser {
         println!("Reading: {:?}", buf);
         let version_text: Vec<u8> = b"version\r\n".to_vec();
         let quit_text: Vec<u8> = b"quit\r\n".to_vec();
-        match buf {
-            txt if txt == version_text => Some(Command::Version),
-            txt if txt == quit_text => Some(Command::Quit),
+        match parse(&buf) {
+            Ok((_buf, command)) => Some(command),
             _ => None,
         }
+        // let Ok((buf, command)) = parse(&buf);
+        // Some(command)
+        // match buf {
+        //     txt if txt == version_text => Some(Command::Version),
+        //     txt if txt == quit_text => Some(Command::Quit),
+        //     _ => None,
+        // }
     }
 
     pub fn new() -> Self {

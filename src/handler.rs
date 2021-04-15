@@ -1,13 +1,13 @@
-use async_std::prelude::*;
-use async_std::net::TcpStream;
-use async_std::io::Write;
-use async_std::io::Read;
 use async_std::io::BufReader;
 use async_std::io::BufWriter;
+use async_std::io::Read;
+use async_std::io::Write;
+use async_std::net::TcpStream;
+use async_std::prelude::*;
 use std::error::Error;
 
-use crate::parser::Parser;
 use crate::command::Command;
+use crate::parser::Parser;
 
 #[derive(Debug)]
 pub struct Handler {
@@ -41,15 +41,17 @@ impl Handler {
             let command = Parser::parse_command(&mut buf_reader).await;
             println!("command: {:?}", command);
             let result: &[u8] = match command {
-                Some(Command::Version) => b"Version 1.0",
+                Some(Command::Version) => b"VERSION 1.0",
                 Some(Command::Quit) => {
                     continue_loop = false;
                     b""
-                },
-
-                None => panic!("Invalid input"),
+                }
+                None => b"CLIENT_ERROR could not recognize command",
+                _ => b"SERVER_ERROR not implemented",
             };
-            let bytes_written = &buf_writer.write(b"XXXXXXXXX Here is what we want to write\n\r").await?;
+            let bytes_written = &buf_writer
+                .write(b"XXXXXXXXX Here is what we want to write\n\r")
+                .await?;
             println!("bytes-written = {}", bytes_written);
             let bytes_written = &buf_writer.write(&result).await?;
             println!("bytes-written = {}", bytes_written);
@@ -76,7 +78,8 @@ impl Handler {
         let mut handler = Handler {
             // buffer: [0, 1024],
             current: String::from(""),
-            stream: stream};
+            stream: stream,
+        };
         handler.run().await.unwrap();
         handler
     }
