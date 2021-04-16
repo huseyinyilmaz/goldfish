@@ -5,10 +5,13 @@ use async_std::stream::Stream;
 // use async_std::io::BufReadExt;
 // use async_std::io::BufReadExt;
 use nom::{
+    // alphanumeric,
     branch::alt,
     bytes::complete,
+    character::complete::{alphanumeric1, anychar, space1},
     eof,
     error::{context, convert_error, ContextError, ErrorKind, ParseError, VerboseError},
+    multi::many1,
     sequence::tuple,
     // combinator::alt,
     IResult,
@@ -17,14 +20,29 @@ use nom::{
 use crate::command::Command;
 use async_std::prelude::*;
 
+// version/r/n
 pub fn parse_version(input: &[u8]) -> IResult<&[u8], Command> {
     let (input, (_, _)) =
         tuple((complete::tag(&b"version"[..]), complete::tag(&b"\r\n"[..])))(input)?;
     Ok((input, Command::Version))
 }
 
+pub fn parse_key(input: &[u8]) -> IResult<&[u8], &[u8]> {
+    // many1(complete::is_not(&b" \t\r\n"[..]))(input)
+    alphanumeric1(input)
+}
+// quit/r/n
 pub fn parse_quit(input: &[u8]) -> IResult<&[u8], Command> {
     let (input, (_, _)) = tuple((complete::tag(&b"quit"[..]), complete::tag(&b"\r\n"[..])))(input)?;
+    Ok((input, Command::Quit))
+}
+
+pub fn parse_get(input: &[u8]) -> IResult<&[u8], Command> {
+    let (input, _) = complete::tag(&b"get"[..])(input)?;
+    let (input, _) = space1(input)?;
+    let (input, key) = parse_key(input)?;
+
+    let (input, (_, _)) = tuple((complete::tag(&b"get"[..]), complete::tag(&b"\r\n"[..])))(input)?;
     Ok((input, Command::Quit))
 }
 
