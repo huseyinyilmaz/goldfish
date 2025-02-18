@@ -1,7 +1,12 @@
 #[derive(Debug, PartialEq)]
-pub enum Command {
+pub enum Command<'a> {
     // Storage commands
-    Set,
+    Set {
+        key: &'a [u8],
+        flags: i32,
+        timeout: i32,
+        value_size: i32,
+    },
     Add,
     Replace,
     Append,
