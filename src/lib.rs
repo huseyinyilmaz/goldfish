@@ -1,9 +1,9 @@
-mod shutdown;
-mod parser;
 mod handler;
-mod utils;
+mod parser;
 mod settings;
+mod shutdown;
 mod state;
+mod utils;
 
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
@@ -23,7 +23,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // let shutdown_handler = shutdown::ShutdownHandler::new();
     let app_settings = settings::Settings::new()?;
     let app_state = state::State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state)); 
+    let app_state_arc = Arc::new(Mutex::new(app_state));
     // Combine the IP address and port into a SocketAddr
     let socket_addr = SocketAddr::new(app_settings.ip_address, app_settings.port);
     info!("Settings");
@@ -32,7 +32,6 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let listener = TcpListener::bind(socket_addr).await?;
     info!("Listening on {}", socket_addr);
     loop {
-
         let app_state_arc_clone = app_state_arc.clone();
         let (mut socket, _) = listener.accept().await?;
         tokio::spawn(async move {
@@ -43,41 +42,29 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                     .read(&mut buf)
                     .await
                     .expect("Failed to read data from socket");
-                info!("Number of bytes read= {}", n);
-                info!("Raw Request= {:?}", &buf[..n]);
-                info!("Raw Request= {:?}", utils::raw_string_to_string(&buf[..n]));
-                let mut parser = make_parser();
-                let (_rest_buf, command) = parser.parse(&buf).unwrap();
-                info!("Command = {:?}", command);
-                // If command is quit just break the loop that waits for the socket data.
-                // This will close the connection with the client.
-                if command == Command::Quit {
-                    info!("Quit Command Received. Closing TCP connection.");
-                    break;
+                if n > 0 {
+                    info!("Number of bytes read = {}", n);
+                    info!("Raw Request bytestring = {:?}", &buf[..n]);
+                    info!("Raw Request= {:?}", utils::raw_string_to_string(&buf[..n]));
+                    let mut parser = make_parser();
+                    let (_rest_buf, command) = parser.parse(&buf).unwrap();
+                    info!("Command = {:?}", command);
+                    // If command is quit just break the loop that waits for the socket data.
+                    // This will close the connection with the client.
+                    if command == Command::Quit {
+                        info!("Quit Command Received. Closing TCP connection.");
+                        break;
+                    }
+
+                    let response = handler::handle_command(&app_state_arc_clone, &command);
+
+                    socket
+                        .write_all(response.as_vec().as_slice())
+                        .await
+                        .expect("failed to write data to socket");
                 }
-                
-                let response = handler::handle_command(&app_state_arc_clone, &command);
-                // if is_shutdown_triggered.load(Ordering::SeqCst) {
-                //     info!("Ctrl+C received, shutting down...");
-                //     process::exit(0);
-                // }
-                
-                // if n == 0 {
-                //     return;
-                // }
-
-                socket
-                    .write_all(response.as_vec().as_slice())
-                    .await
-                    .expect("failed to write data to socket");
-
-                // socket
-                //     .write_all(&buf[0..n])
-                //     .await
-                //     .expect("failed to write data to socket");
             }
         });
-
     }
 }
 
