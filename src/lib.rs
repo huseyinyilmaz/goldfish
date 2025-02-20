@@ -42,10 +42,12 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                     .read(&mut buf)
                     .await
                     .expect("Failed to read data from socket");
+
+                info!("Number of bytes read = {}", n);
+                info!("Raw Request bytestring = {:?}", &buf[..n]);
+                info!("Raw Request= {:?}", utils::raw_string_to_string(&buf[..n]));
+
                 if n > 0 {
-                    info!("Number of bytes read = {}", n);
-                    info!("Raw Request bytestring = {:?}", &buf[..n]);
-                    info!("Raw Request= {:?}", utils::raw_string_to_string(&buf[..n]));
                     let mut parser = make_parser();
                     let (_rest_buf, command) = parser.parse(&buf).unwrap();
                     info!("Command = {:?}", command);
@@ -56,12 +58,20 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                         break;
                     }
 
-                    let response = handler::handle_command(&app_state_arc_clone, &command);
-
+                    let response_command = handler::handle_command(&app_state_arc_clone, command);
+                    let response = response_command.as_vec();
+                    info!("Response = {:?}", response_command);
+                    info!(
+                        "Raw Response = {:?}",
+                        utils::raw_string_to_string(&response)
+                    );
+                    info!("State = {:?}", app_state_arc_clone);
                     socket
-                        .write_all(response.as_vec().as_slice())
+                        .write_all(&response)
                         .await
                         .expect("failed to write data to socket");
+                } else {
+                    info!("Empty Data received!")
                 }
             }
         });
