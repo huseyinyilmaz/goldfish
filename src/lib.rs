@@ -71,7 +71,10 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                         .await
                         .expect("failed to write data to socket");
                 } else {
-                    info!("Empty Data received!")
+                    // If n == 0 bytes that means other side closed the connection.
+                    // In this case we do not need to listen on our side.
+                    info!("Connection closed.");
+                    break;
                 }
             }
         });
