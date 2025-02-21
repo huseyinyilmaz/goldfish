@@ -4,10 +4,13 @@ pub enum Command {
     Set {
         key: Vec<u8>,
         flags: i32,
-        timeout: i32,
+        timeout: u64,
         noreply: bool,
         value: Vec<u8>,
         value_size: u32,
+    },
+    Get {
+        key: Vec<u8>,
     },
     Add,
     Replace,
@@ -15,7 +18,6 @@ pub enum Command {
     Prepend,
     Cas,
     // Retrieval commands
-    Get,
     Gets,
     Gat,
     Gats,

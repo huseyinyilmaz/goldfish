@@ -4,7 +4,7 @@ use std::{collections::HashMap, time::SystemTime};
 #[derive(Debug)]
 pub struct Data {
     pub data: Vec<u8>,
-    pub timeout: i32,
+    pub timeout: u64,
     pub flags: i32,
     pub time: SystemTime,
 }
@@ -21,5 +21,9 @@ impl State {
 
     pub fn set_key(&mut self, key: Vec<u8>, data: Data) -> Option<Data> {
         self.data.insert(key, data)
+    }
+
+    pub fn get_key(&self, key: &Vec<u8>) -> Option<&Data> {
+        self.data.get(key)
     }
 }

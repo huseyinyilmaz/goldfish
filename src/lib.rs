@@ -35,7 +35,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let app_state_arc_clone = app_state_arc.clone();
         let (mut socket, _) = listener.accept().await?;
         tokio::spawn(async move {
-            let mut buf = vec![0; 1024];
+            let mut buf = vec![0; 1024 * 1024 * 10]; //10 MB buffer to read
             // In a loop, read data from the socket and write the data back.
             loop {
                 let n = socket
