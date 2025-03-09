@@ -1,0 +1,13 @@
+[package]
+name = "goldfish"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+config = "0.15.7"
+env_logger = "0.11.6"
+log = "0.4.25"
+nom = "8.0.0"
+serde = { version = "1.0.217", features = ["std", "derive", "serde_derive"]}
+tokio = { version = "1.43", features = ["full"] }
+
