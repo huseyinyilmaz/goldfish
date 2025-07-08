@@ -20,7 +20,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --locked
+          args: --release --locked --manifest-path=v3/Cargo.toml
 
   check:
     name: Check
