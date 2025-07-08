@@ -29,7 +29,7 @@ pub fn process_input(state: &Arc<Mutex<state::State>>, input: &[u8]) -> Option<V
         if command == Command::Quit {
             return None;
         } else {
-            let response_command = handler::handle_command(&state, command);
+            let response_command = handler::handle_command(state, command);
             debug!("Response = {:?}", response_command);
             let response_command_vec = response_command.as_vec();
             if result.is_empty() {
@@ -39,7 +39,7 @@ pub fn process_input(state: &Arc<Mutex<state::State>>, input: &[u8]) -> Option<V
             }
         }
     }
-    return Some(result);
+    Some(result)
 }
 
 // use tokio::net::TcpListener;

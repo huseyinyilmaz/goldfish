@@ -6,5 +6,5 @@ use crate::{
 };
 
 pub fn handle_version(_state: &Arc<Mutex<State>>, _command: Command) -> CommandResponse {
-    return CommandResponse::Version(String::from("Goldfish 1.0"));
+    CommandResponse::Version(String::from("Goldfish 1.0"))
 }

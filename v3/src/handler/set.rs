@@ -29,11 +29,11 @@ pub fn handle_set(state: &Arc<Mutex<State>>, command: Command) -> CommandRespons
         app_state.set_key(key, data);
 
         if noreply {
-            return CommandResponse::Set(String::from(""));
+            CommandResponse::Set(String::from(""))
         } else {
-            return CommandResponse::Set(String::from("STORED\r\n"));
+            CommandResponse::Set(String::from("STORED\r\n"))
         }
     } else {
-        return CommandResponse::Error;
+        CommandResponse::Error
     }
 }

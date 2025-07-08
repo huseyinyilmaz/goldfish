@@ -18,7 +18,7 @@ pub fn make_get_parser<'a>(
         let (input, _) = line_ending(input)?;
         let key = key_bytestring.to_vec();
         let command: Command = Command::Get { key };
-        return IResult::Ok((input, command));
+        IResult::Ok((input, command))
     }
-    return get_parser;
+    get_parser
 }

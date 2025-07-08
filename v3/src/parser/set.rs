@@ -46,7 +46,7 @@ pub fn make_set_parser<'a>(
             value,
         };
 
-        return IResult::Ok((input, command));
+        IResult::Ok((input, command))
     }
-    return set_parser;
+    set_parser
 }

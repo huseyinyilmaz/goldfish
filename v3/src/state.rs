@@ -17,11 +17,17 @@ pub struct State {
     data: HashMap<Vec<u8>, Data>,
 }
 
+impl Default for State {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl State {
     pub fn new() -> Self {
-        return State {
+        State {
             data: HashMap::new(),
-        };
+        }
     }
 
     pub fn set_key(&mut self, key: Vec<u8>, data: Data) -> Option<Data> {
@@ -33,6 +39,6 @@ impl State {
         for key in self.data.keys() {
             debug!("key={:?}", utils::raw_string_to_string(key));
         }
-        return self.data.get(key);
+        self.data.get(key)
     }
 }
