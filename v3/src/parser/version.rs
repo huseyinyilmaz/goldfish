@@ -1,10 +1,5 @@
 use super::command::Command;
-use nom::{
-    bytes::tag,
-    character::complete::line_ending,
-    sequence::terminated,
-    Parser,
-};
+use nom::{bytes::tag, character::complete::line_ending, sequence::terminated, Parser};
 /**
 Parses following message: `b"version/r/n"`
 */

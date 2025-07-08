@@ -1,8 +1,7 @@
 use config::{Config, ConfigError, Environment, File};
+use log::debug;
 use serde::{Deserialize, Serialize};
 use std::net::IpAddr;
-use log::debug;
-
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct SettingsOptions {
@@ -33,7 +32,7 @@ impl Settings {
         config_builder = config_builder.add_source(File::with_name("goldfish").required(false));
         config_builder = config_builder.add_source(Environment::with_prefix("goldfish"));
         let default: Settings = Settings::default();
-        let parsed_config  = config_builder.build()?;
+        let parsed_config = config_builder.build()?;
         let parsed_settings: SettingsOptions = parsed_config.try_deserialize()?;
         let settings = Settings {
             ip_address: parsed_settings.ip_address.unwrap_or(default.ip_address),

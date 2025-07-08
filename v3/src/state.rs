@@ -4,7 +4,6 @@ use log::debug;
 
 use crate::utils;
 
-
 #[derive(Debug)]
 pub struct Data {
     pub data: Vec<u8>,
@@ -15,12 +14,14 @@ pub struct Data {
 
 #[derive(Debug)]
 pub struct State {
-    data: HashMap<Vec<u8>, Data>
+    data: HashMap<Vec<u8>, Data>,
 }
 
 impl State {
     pub fn new() -> Self {
-        return State{data: HashMap::new()};
+        return State {
+            data: HashMap::new(),
+        };
     }
 
     pub fn set_key(&mut self, key: Vec<u8>, data: Data) -> Option<Data> {
