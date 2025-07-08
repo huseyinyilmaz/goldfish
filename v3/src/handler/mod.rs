@@ -1,6 +1,6 @@
 mod get;
-mod handler;
+mod main_handler;
 mod set;
 mod version;
 
-pub use handler::handle_command;
+pub use main_handler::handle_command;
