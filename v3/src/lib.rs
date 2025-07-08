@@ -30,7 +30,7 @@ pub fn process_input(state: &Arc<Mutex<state::State>>, input: &[u8]) -> Option<V
             return None;
         } else {
             let response_command = handler::handle_command(state, command);
-            debug!("Response = {:?}", response_command);
+            debug!("Response = {response_command:?}");
             let response_command_vec = response_command.as_vec();
             if result.is_empty() {
                 result = response_command_vec;
@@ -53,7 +53,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let socket_addr = SocketAddr::new(app_settings.ip_address, app_settings.port);
     // Bind the listener to the address
     let listener = TcpListener::bind(socket_addr).await?;
-    info!("Listening on {}", socket_addr);
+    info!("Listening on {socket_addr}");
     loop {
         let app_state_arc_clone = app_state_arc.clone();
         let (mut socket, _) = listener.accept().await?;
@@ -66,7 +66,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                     .await
                     .expect("Failed to read data from socket");
 
-                debug!("Number of bytes read = {}", n);
+                debug!("Number of bytes read = {n}");
                 debug!("Raw Request bytestring = {:?}", &buf[..n]);
                 debug!("Raw Request= {:?}", utils::raw_string_to_string(&buf[..n]));
 
@@ -81,7 +81,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                                 "Raw Response = {:?}",
                                 utils::raw_string_to_string(&response)
                             );
-                            debug!("State = {:?}", app_state_arc_clone);
+                            debug!("State = {app_state_arc_clone:?}");
                             socket
                                 .write_all(&response)
                                 .await
