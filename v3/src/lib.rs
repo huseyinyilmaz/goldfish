@@ -1,7 +1,7 @@
 mod handler;
 mod parser;
 mod settings;
-mod state;
+pub mod state;
 mod utils;
 
 use std::net::SocketAddr;
@@ -15,20 +15,31 @@ use parser::make_parser;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::{net::TcpListener, time::sleep};
 
-fn process_input(state: &Arc<Mutex<state::State>>, input: &[u8]) -> Option<Vec<u8>> {
+pub fn process_input(state: &Arc<Mutex<state::State>>, input: &[u8]) -> Option<Vec<u8>> {
     let mut parser = make_parser();
     // Parser has a generic catch all parser at the end.
-    // It will always return a value. That is why unwrap will not panic.
-    let (_rest_buf, command) = parser.parse(input).unwrap();
-    // If command is quit just break the loop that waits for the socket data.
-    // This will close the connection with the client.
-    if command == Command::Quit {
-        return None;
-    } else {
-        let response_command = handler::handle_command(&state, command);
-        debug!("Response = {:?}", response_command);
-        return Some(response_command.as_vec());
+    // It will always return a value. That is why unwrap will not panic
+    let mut result: Vec<u8> = Vec::new();
+    let mut parser_input = input;
+    while !parser_input.is_empty() {
+        let (rest, command) = parser.parse(parser_input).unwrap();
+        parser_input = rest;
+        // If command is quit just break the loop that waits for the socket data.
+        // This will close the connection with the client.
+        if command == Command::Quit {
+            return None;
+        } else {
+            let response_command = handler::handle_command(&state, command);
+            debug!("Response = {:?}", response_command);
+            let response_command_vec = response_command.as_vec();
+            if result.is_empty() {
+                result = response_command_vec;
+            } else {
+                result.extend(response_command_vec);
+            }
+        }
     }
+    return Some(result);
 }
 
 // use tokio::net::TcpListener;
