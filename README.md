@@ -1,4 +1,3 @@
-[WIP]
 
 Concurrent memcached implementation.
 
