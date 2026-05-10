@@ -7,7 +7,7 @@ use crate::utils;
 #[derive(Debug)]
 pub struct Data {
     pub data: Vec<u8>,
-    pub timeout: u64,
+    pub timeout: i64,
     pub flags: i32,
     pub time: SystemTime,
 }

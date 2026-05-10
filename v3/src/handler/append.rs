@@ -6,6 +6,7 @@ use std::{
 use crate::{
     parser::command::Command,
     state::{Data, State},
+    utils,
 };
 
 pub fn handle_append(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
@@ -16,6 +17,10 @@ pub fn handle_append(state: &Arc<RwLock<State>>, command: Command, output: &mut 
         ..
     } = command
     {
+        if key.len() > 250 || utils::has_control_chars(&key) {
+            output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n");
+            return;
+        }
         let mut app_state = state.write().unwrap();
         if let Some(existing) = app_state.get_key(&key) {
             let mut new_data = existing.data.clone();

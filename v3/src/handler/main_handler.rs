@@ -17,6 +17,7 @@ pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut
         Command::Prepend { .. } => handle_prepend(state, command, output),
         Command::Get { .. } => handle_get(state, command, output),
         Command::Delete { .. } => handle_delete(state, command, output),
+        Command::Malformed => output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n"),
         _ => output.extend_from_slice(b"ERROR\r\n"),
     }
 }

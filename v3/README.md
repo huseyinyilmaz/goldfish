@@ -15,16 +15,17 @@ For a functional memcached server that real clients can rely on, the following c
 |---|---|---|
 | `set` | ✅ | Core write — create or update any key |
 | `get` | ✅ | Core read — retrieve values (multi-key supported) |
-| `delete` | ❌ | Core delete — without it keys accumulate forever |
-| `add` | ❌ | Conditional create — "store only if key doesn't exist" |
-| `replace` | ❌ | Conditional update — "store only if key exists" |
+| `delete` | ✅ | Core delete — without it keys accumulate forever |
+| `add` | ✅ | Conditional create — "store only if key doesn't exist" |
+| `replace` | ✅ | Conditional update — "store only if key exists" |
+| `append` / `prepend` | ✅ | Modify existing values |
 | `incr` / `decr` | ❌ | Atomic counters — widely used for rate limits, sessions |
 | `stats` | ❌ | Monitoring — required for health checks in production |
 | `flush_all` | ❌ | Bulk invalidation — needed for cache lifecycle management |
 | `quit` | ✅ | Clean connection teardown |
 | `version` | ✅ | Server identification |
 
-All other commands (append, prepend, cas, gets, gat, gats, touch, meta commands, admin commands) are enhancements beyond the base set.
+All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) are enhancements beyond the base set.
 
 ## Protocol Support
 
@@ -33,10 +34,10 @@ All other commands (append, prepend, cas, gets, gat, gats, touch, meta commands,
 | Command | Status | Notes |
 |---|---|---|
 | `set` | ✅ | Full support, including `noreply` |
-| `add` | ❌ | |
-| `replace` | ❌ | |
-| `append` | ❌ | |
-| `prepend` | ❌ | |
+| `add` | ✅ | Full support, including `noreply` |
+| `replace` | ✅ | Full support, including `noreply` |
+| `append` | ✅ | Preserves original flags and exptime |
+| `prepend` | ✅ | Preserves original flags and exptime |
 | `cas` | ❌ | |
 
 ### Retrieval Commands
@@ -52,7 +53,7 @@ All other commands (append, prepend, cas, gets, gat, gats, touch, meta commands,
 
 | Command | Status | Notes |
 |---|---|---|
-| `delete` | ❌ | |
+| `delete` | ✅ | Full support, including `noreply` |
 | `incr` / `decr` | ❌ | |
 | `touch` | ❌ | |
 | `stats` | ❌ | |
