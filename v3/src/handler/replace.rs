@@ -4,6 +4,7 @@ use std::{
 };
 
 use crate::{
+    handler::set::normalize_timeout,
     parser::command::Command,
     state::{Data, State},
 };
@@ -26,7 +27,7 @@ pub fn handle_replace(state: &Arc<RwLock<State>>, command: Command, output: &mut
         } else {
             let data = Data {
                 data: value,
-                timeout,
+                timeout: normalize_timeout(timeout),
                 flags,
                 time: SystemTime::now(),
             };

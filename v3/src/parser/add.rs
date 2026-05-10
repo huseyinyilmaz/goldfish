@@ -3,7 +3,7 @@ use std::str::{from_utf8, FromStr};
 use super::command::Command;
 use nom::{
     bytes::complete::{is_not, tag, take},
-    character::complete::{digit1, line_ending, space1},
+    character::complete::{digit1, i64, line_ending, space1},
     combinator::opt,
     IResult, Parser,
 };
@@ -17,7 +17,7 @@ pub fn make_add_parser<'a>(
         let (input, _) = space1(input)?;
         let (input, flags_str) = digit1(input)?;
         let (input, _) = space1(input)?;
-        let (input, timeout_str) = digit1(input)?;
+        let (input, timeout) = i64(input)?;
         let (input, _) = space1(input)?;
         let (input, value_size_str) = digit1(input)?;
         let (input, _) = opt(space1).parse(input)?;
@@ -30,7 +30,6 @@ pub fn make_add_parser<'a>(
         let (input, _) = line_ending(input)?;
 
         let flags = FromStr::from_str(from_utf8(flags_str).unwrap()).unwrap();
-        let timeout = FromStr::from_str(from_utf8(timeout_str).unwrap()).unwrap();
         let key = key_bytestring.to_vec();
         let value = value_bytestring.to_vec();
         let command: Command = Command::Add {

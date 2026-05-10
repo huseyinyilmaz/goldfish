@@ -4,7 +4,7 @@ pub enum Command {
     Set {
         key: Vec<u8>,
         flags: i32,
-        timeout: u64,
+        timeout: i64,
         noreply: bool,
         value: Vec<u8>,
         value_size: u32,
@@ -12,7 +12,7 @@ pub enum Command {
     Add {
         key: Vec<u8>,
         flags: i32,
-        timeout: u64,
+        timeout: i64,
         noreply: bool,
         value: Vec<u8>,
         value_size: u32,
@@ -20,7 +20,7 @@ pub enum Command {
     Replace {
         key: Vec<u8>,
         flags: i32,
-        timeout: u64,
+        timeout: i64,
         noreply: bool,
         value: Vec<u8>,
         value_size: u32,
@@ -28,7 +28,7 @@ pub enum Command {
     Append {
         key: Vec<u8>,
         flags: i32,
-        timeout: u64,
+        timeout: i64,
         noreply: bool,
         value: Vec<u8>,
         value_size: u32,
@@ -36,7 +36,7 @@ pub enum Command {
     Prepend {
         key: Vec<u8>,
         flags: i32,
-        timeout: u64,
+        timeout: i64,
         noreply: bool,
         value: Vec<u8>,
         value_size: u32,

@@ -8,6 +8,18 @@ use crate::{
     state::{Data, State},
 };
 
+pub fn normalize_timeout(timeout: i64) -> i64 {
+    if timeout > 2_592_000 {
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs() as i64;
+        timeout.saturating_sub(now)
+    } else {
+        timeout
+    }
+}
+
 pub fn handle_set(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
     if let Command::Set {
         key,
@@ -21,7 +33,7 @@ pub fn handle_set(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
         let mut app_state = state.write().unwrap();
         let data = Data {
             data: value,
-            timeout,
+            timeout: normalize_timeout(timeout),
             flags,
             time: SystemTime::now(),
         };
