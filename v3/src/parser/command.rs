@@ -18,7 +18,7 @@ pub enum Command {
     */
     // Retrieval commands
     Get {
-        key: Vec<u8>,
+        keys: Vec<Vec<u8>>,
     },
     /*
     Gets,
