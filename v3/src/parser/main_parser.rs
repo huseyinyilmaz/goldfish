@@ -2,9 +2,9 @@ use nom::{bytes::tag, IResult, Parser};
 
 use super::{
     add::make_add_parser, append::make_append_parser, command::Command, decr::make_decr_parser,
-    delete::make_delete_parser, get::make_get_parser, incr::make_incr_parser,
-    prepend::make_prepend_parser, quit::make_quit_parser, replace::make_replace_parser,
-    set::make_set_parser, version::make_version_parser,
+    delete::make_delete_parser, flush_all::make_flush_all_parser, get::make_get_parser,
+    incr::make_incr_parser, prepend::make_prepend_parser, quit::make_quit_parser,
+    replace::make_replace_parser, set::make_set_parser, version::make_version_parser,
 };
 
 fn make_malformed_parser<'a>(
@@ -17,6 +17,7 @@ fn make_malformed_parser<'a>(
             tag("prepend"),
             tag("incr"),
             tag("decr"),
+            tag("flush_all"),
             tag("add"),
             tag("get"),
             tag("delete"),
@@ -57,6 +58,7 @@ pub fn make_parser<'a>(
         make_prepend_parser(),
         make_incr_parser(),
         make_decr_parser(),
+        make_flush_all_parser(),
         make_replace_parser(),
         make_set_parser(),
         make_get_parser(),

@@ -2,6 +2,7 @@ mod add;
 mod append;
 mod decr;
 mod delete;
+mod flush_all;
 mod get;
 mod incr;
 mod main_handler;

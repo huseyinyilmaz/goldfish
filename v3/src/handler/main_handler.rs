@@ -4,8 +4,8 @@ use crate::{parser::command::Command, state::State};
 
 use super::{
     add::handle_add, append::handle_append, decr::handle_decr, delete::handle_delete,
-    get::handle_get, incr::handle_incr, prepend::handle_prepend, replace::handle_replace,
-    set::handle_set, version::handle_version,
+    flush_all::handle_flush_all, get::handle_get, incr::handle_incr, prepend::handle_prepend,
+    replace::handle_replace, set::handle_set, version::handle_version,
 };
 
 pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
@@ -19,6 +19,7 @@ pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut
         Command::Incr { .. } => handle_incr(state, command, output),
         Command::Decr { .. } => handle_decr(state, command, output),
         Command::Get { .. } => handle_get(state, command, output),
+        Command::FlushAll { .. } => handle_flush_all(state, command, output),
         Command::Delete { .. } => handle_delete(state, command, output),
         Command::Malformed => output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n"),
         _ => output.extend_from_slice(b"ERROR\r\n"),

@@ -21,7 +21,7 @@ For a functional memcached server that real clients can rely on, the following c
 | `append` / `prepend` | ✅ | Modify existing values |
 | `incr` / `decr` | ✅ | Atomic counters — widely used for rate limits, sessions |
 | `stats` | ❌ | Monitoring — required for health checks in production |
-| `flush_all` | ❌ | Bulk invalidation — needed for cache lifecycle management |
+| `flush_all` | ✅ | Bulk invalidation — needed for cache lifecycle management |
 | `quit` | ✅ | Clean connection teardown |
 | `version` | ✅ | Server identification |
 
@@ -57,7 +57,7 @@ All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) 
 | `incr` / `decr` | ✅ | Full support, including `noreply` |
 | `touch` | ❌ | |
 | `stats` | ❌ | |
-| `flush_all` | ❌ | |
+| `flush_all` | ✅ | Immediate flush (delay parsed but not applied) |
 | `version` | ✅ | |
 | `quit` | ✅ | |
 

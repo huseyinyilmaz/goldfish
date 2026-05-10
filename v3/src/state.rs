@@ -45,4 +45,8 @@ impl State {
     pub fn delete_key(&mut self, key: &[u8]) -> bool {
         self.data.remove(key).is_some()
     }
+
+    pub fn clear(&mut self) {
+        self.data.clear();
+    }
 }
