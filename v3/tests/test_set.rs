@@ -173,10 +173,7 @@ fn test_set_malformed_bad_bytes() {
 #[test]
 fn test_set_pipeline() {
     let state = common::new_state();
-    let result = common::process(
-        &state,
-        "set a 0 0 1\r\nx\r\nset b 0 0 1\r\ny\r\n",
-    );
+    let result = common::process(&state, "set a 0 0 1\r\nx\r\nset b 0 0 1\r\ny\r\n");
     assert_eq!(result, "STORED\r\nSTORED\r\n");
 }
 
@@ -211,10 +208,7 @@ fn test_set_noreply_with_verify() {
 #[test]
 fn test_set_noreply_in_pipeline() {
     let state = common::new_state();
-    let result = common::process(
-        &state,
-        "set a 0 0 1 noreply\r\nx\r\nset b 0 0 1\r\ny\r\n",
-    );
+    let result = common::process(&state, "set a 0 0 1 noreply\r\nx\r\nset b 0 0 1\r\ny\r\n");
     assert_eq!(result, "STORED\r\n");
     let result = common::process(&state, "get a\r\n");
     assert_eq!(result, "VALUE a 0 1\r\nx\r\nEND\r\n");

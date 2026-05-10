@@ -47,14 +47,8 @@ fn test_case_sensitive_get() {
 #[test]
 fn test_pipeline_set_get() {
     let state = common::new_state();
-    let result = common::process(
-        &state,
-        "set key 0 0 5\r\nhello\r\nget key\r\n",
-    );
-    assert_eq!(
-        result,
-        "STORED\r\nVALUE key 0 5\r\nhello\r\nEND\r\n"
-    );
+    let result = common::process(&state, "set key 0 0 5\r\nhello\r\nget key\r\n");
+    assert_eq!(result, "STORED\r\nVALUE key 0 5\r\nhello\r\nEND\r\n");
 }
 
 #[test]

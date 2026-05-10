@@ -92,13 +92,13 @@ fn test_get_unicode_value() {
 }
 
 #[test]
-fn test_get_after_delete_not_supported() {
+fn test_get_after_delete() {
     let state = common::new_state();
     common::process(&state, "set key 0 0 5\r\nhello\r\n");
     let result = common::process(&state, "delete key\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "DELETED\r\n");
     let result = common::process(&state, "get key\r\n");
-    assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
+    assert_eq!(result, "END\r\n");
 }
 
 #[test]
@@ -139,7 +139,10 @@ fn test_get_multiple_keys_three_keys() {
     common::process(&state, "set y 0 0 1\r\nb\r\n");
     common::process(&state, "set z 0 0 1\r\nc\r\n");
     let result = common::process(&state, "get x y z\r\n");
-    assert_eq!(result, "VALUE x 0 1\r\na\r\nVALUE y 0 1\r\nb\r\nVALUE z 0 1\r\nc\r\nEND\r\n");
+    assert_eq!(
+        result,
+        "VALUE x 0 1\r\na\r\nVALUE y 0 1\r\nb\r\nVALUE z 0 1\r\nc\r\nEND\r\n"
+    );
 }
 
 #[test]
