@@ -1,10 +1,36 @@
 mod common;
 
 #[test]
-fn test_add_not_implemented() {
+fn test_add_stored() {
     let state = common::new_state();
     let result = common::process(&state, "add key 0 0 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "STORED\r\n");
+}
+
+#[test]
+fn test_add_not_stored() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "add key 0 0 5\r\nworld\r\n");
+    assert_eq!(result, "NOT_STORED\r\n");
+}
+
+#[test]
+fn test_add_noreply() {
+    let state = common::new_state();
+    let result = common::process(&state, "add key 0 0 5 noreply\r\nhello\r\n");
+    assert_eq!(result, "");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
+}
+
+#[test]
+fn test_add_existing_key_value_unchanged() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    common::process(&state, "add key 0 0 6\r\nworld!\r\n");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
 }
 
 #[test]
