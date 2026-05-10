@@ -37,6 +37,7 @@ pub fn handle_add(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
                 time: SystemTime::now(),
             };
             app_state.set_key(key, data);
+            app_state.increment_total_items();
             if !noreply {
                 output.extend_from_slice(b"STORED\r\n");
             }

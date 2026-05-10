@@ -76,6 +76,48 @@ END\r\n
 - The `VALUE` line reports `<flags>` and `<bytes>` as originally stored
 - Data block is exactly `<bytes>` bytes
 
+## Statistics: `stats`
+
+**Request:**
+
+```
+stats\r\n
+```
+
+**Response:**
+
+```
+STAT <name> <value>\r\n
+...
+END\r\n
+```
+
+### Returned statistics
+
+| STAT | Description |
+|---|---|
+| `pid` | Server process ID |
+| `uptime` | Seconds since server start |
+| `time` | Current Unix timestamp |
+| `version` | Server version string |
+| `pointer_size` | Size of `usize` in bits (32 or 64) |
+| `curr_items` | Number of items currently stored |
+| `total_items` | Total items stored since server start |
+| `bytes` | Total bytes of item data currently stored |
+| `curr_connections` | Always 0 (not tracked) |
+| `total_connections` | Always 0 (not tracked) |
+| `connection_structures` | Always 0 (not tracked) |
+| `cmd_get` | Total GET commands received |
+| `cmd_set` | Total storage commands received (set/add/replace/append/prepend) |
+| `get_hits` | GET commands that returned at least one item |
+| `get_misses` | GET commands that returned no items |
+| `evictions` | Always 0 (never evict) |
+| `bytes_read` | Always 0 (not tracked) |
+| `bytes_written` | Always 0 (not tracked) |
+| `limit_maxbytes` | Always 0 (no memory limit) |
+
+**Subcommands** (e.g. `stats items`, `stats slabs`): parsed but return `END\r\n`.
+
 ## Cache management: `flush_all`
 
 **Request:**
@@ -169,5 +211,6 @@ Response: none (server closes connection).
 | `version` | Yes | |
 | `quit` | Yes | |
 | `flush_all` | Yes | Immediate flush (delay is parsed but not applied) |
+| `stats` | Yes | General stats with counter tracking |
 | `cas` | No | |
 | `gets` | No | |

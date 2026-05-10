@@ -73,6 +73,10 @@ pub enum Command {
         delay: u64,
         noreply: bool,
     },
+    // Statistics
+    Stats {
+        sub: Option<Vec<u8>>,
+    },
     // Meta comands
     Version,
     Quit,

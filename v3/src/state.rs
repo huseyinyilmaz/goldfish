@@ -1,4 +1,8 @@
-use std::{collections::HashMap, time::SystemTime};
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicU64, Ordering},
+    time::SystemTime,
+};
 
 use log::debug;
 
@@ -15,6 +19,12 @@ pub struct Data {
 #[derive(Debug)]
 pub struct State {
     data: HashMap<Vec<u8>, Data>,
+    pub start_time: SystemTime,
+    pub cmd_get: AtomicU64,
+    pub cmd_set: AtomicU64,
+    pub total_items: AtomicU64,
+    pub get_hits: AtomicU64,
+    pub get_misses: AtomicU64,
 }
 
 impl Default for State {
@@ -27,6 +37,12 @@ impl State {
     pub fn new() -> Self {
         State {
             data: HashMap::new(),
+            start_time: SystemTime::now(),
+            cmd_get: AtomicU64::new(0),
+            cmd_set: AtomicU64::new(0),
+            total_items: AtomicU64::new(0),
+            get_hits: AtomicU64::new(0),
+            get_misses: AtomicU64::new(0),
         }
     }
 
@@ -48,5 +64,21 @@ impl State {
 
     pub fn clear(&mut self) {
         self.data.clear();
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+
+    pub fn total_bytes(&self) -> usize {
+        self.data.values().map(|d| d.data.len()).sum()
+    }
+
+    pub fn increment_total_items(&self) {
+        self.total_items.fetch_add(1, Ordering::Relaxed);
     }
 }
