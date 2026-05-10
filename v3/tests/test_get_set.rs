@@ -7,21 +7,17 @@ fn test_set_and_get_found() {
     let app_state = State::new();
     let app_state_arc = Arc::new(Mutex::new(app_state));
 
+    let mut output = Vec::new();
     let input_set = "set key 0 10 5\r\nvalue\r\n";
-    let expected_output_set = "STORED\r\n";
+    process_input(&app_state_arc, input_set.as_bytes(), &mut output);
+    assert_eq!(std::str::from_utf8(&output), Ok("STORED\r\n"));
 
-    let result_set = process_input(&app_state_arc, input_set.as_bytes());
-    assert_eq!(
-        std::str::from_utf8(&result_set.unwrap()),
-        Ok(expected_output_set)
-    );
-
+    let mut output = Vec::new();
     let input_get = "get key\r\n";
-    let expected_output_get = "VALUE key 0 5\r\nvalue\r\nEND\r\n";
-    let result_get = process_input(&app_state_arc, input_get.as_bytes());
+    process_input(&app_state_arc, input_get.as_bytes(), &mut output);
     assert_eq!(
-        std::str::from_utf8(&result_get.unwrap()),
-        Ok(expected_output_get)
+        std::str::from_utf8(&output),
+        Ok("VALUE key 0 5\r\nvalue\r\nEND\r\n")
     );
 }
 
@@ -30,21 +26,17 @@ fn test_set_with_noreploy_and_get_found() {
     let app_state = State::new();
     let app_state_arc = Arc::new(Mutex::new(app_state));
 
+    let mut output = Vec::new();
     let input_set = "set key 0 10 5 noreply\r\nvalue\r\n";
-    let expected_output_set = "";
+    process_input(&app_state_arc, input_set.as_bytes(), &mut output);
+    assert_eq!(std::str::from_utf8(&output), Ok(""));
 
-    let result_set = process_input(&app_state_arc, input_set.as_bytes());
-    assert_eq!(
-        std::str::from_utf8(&result_set.unwrap()),
-        Ok(expected_output_set)
-    );
-
+    let mut output = Vec::new();
     let input_get = "get key\r\n";
-    let expected_output_get = "VALUE key 0 5\r\nvalue\r\nEND\r\n";
-    let result_get = process_input(&app_state_arc, input_get.as_bytes());
+    process_input(&app_state_arc, input_get.as_bytes(), &mut output);
     assert_eq!(
-        std::str::from_utf8(&result_get.unwrap()),
-        Ok(expected_output_get)
+        std::str::from_utf8(&output),
+        Ok("VALUE key 0 5\r\nvalue\r\nEND\r\n")
     );
 }
 
@@ -53,22 +45,15 @@ fn test_set_and_get_not_found() {
     let app_state = State::new();
     let app_state_arc = Arc::new(Mutex::new(app_state));
 
+    let mut output = Vec::new();
     let input_set = "set key 0 10 5\r\nvalue\r\n";
-    let expected_output_set = "STORED\r\n";
+    process_input(&app_state_arc, input_set.as_bytes(), &mut output);
+    assert_eq!(std::str::from_utf8(&output), Ok("STORED\r\n"));
 
-    let result_set = process_input(&app_state_arc, input_set.as_bytes());
-    assert_eq!(
-        std::str::from_utf8(&result_set.unwrap()),
-        Ok(expected_output_set)
-    );
-
+    let mut output = Vec::new();
     let input_get = "get different_key\r\n";
-    let expected_output_get = "END\r\n";
-    let result_get = process_input(&app_state_arc, input_get.as_bytes());
-    assert_eq!(
-        std::str::from_utf8(&result_get.unwrap()),
-        Ok(expected_output_get)
-    );
+    process_input(&app_state_arc, input_get.as_bytes(), &mut output);
+    assert_eq!(std::str::from_utf8(&output), Ok("END\r\n"));
 }
 
 #[test]
@@ -76,9 +61,11 @@ fn test_set_and_get_multiple_commands_on_one_request_found() {
     let app_state = State::new();
     let app_state_arc = Arc::new(Mutex::new(app_state));
 
+    let mut output = Vec::new();
     let input = "set key 0 10 5\r\nvalue\r\nget key\r\n";
-    let expected_output = "STORED\r\nVALUE key 0 5\r\nvalue\r\nEND\r\n";
-
-    let result = process_input(&app_state_arc, input.as_bytes());
-    assert_eq!(std::str::from_utf8(&result.unwrap()), Ok(expected_output));
+    process_input(&app_state_arc, input.as_bytes(), &mut output);
+    assert_eq!(
+        std::str::from_utf8(&output),
+        Ok("STORED\r\nVALUE key 0 5\r\nvalue\r\nEND\r\n")
+    );
 }

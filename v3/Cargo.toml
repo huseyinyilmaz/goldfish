@@ -11,3 +11,10 @@ nom = "8.0.0"
 serde = { version = "1.0.217", features = ["std", "derive", "serde_derive"]}
 tokio = { version = "1.43", features = ["full"] }
 
+[dev-dependencies]
+criterion = { version = "0.8", features = ["cargo_bench_support", "html_reports"] }
+
+[[bench]]
+name = "benchmarks"
+harness = false
+

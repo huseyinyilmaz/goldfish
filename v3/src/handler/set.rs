@@ -4,11 +4,11 @@ use std::{
 };
 
 use crate::{
-    parser::{command::Command, response::CommandResponse},
+    parser::command::Command,
     state::{Data, State},
 };
 
-pub fn handle_set(state: &Arc<Mutex<State>>, command: Command) -> CommandResponse {
+pub fn handle_set(state: &Arc<Mutex<State>>, command: Command, output: &mut Vec<u8>) {
     if let Command::Set {
         key,
         flags,
@@ -19,21 +19,16 @@ pub fn handle_set(state: &Arc<Mutex<State>>, command: Command) -> CommandRespons
     } = command
     {
         let mut app_state = state.lock().unwrap();
-        let time = SystemTime::now();
         let data = Data {
             data: value,
             timeout,
             flags,
-            time,
+            time: SystemTime::now(),
         };
         app_state.set_key(key, data);
 
-        if noreply {
-            CommandResponse::Set(String::from(""))
-        } else {
-            CommandResponse::Set(String::from("STORED\r\n"))
+        if !noreply {
+            output.extend_from_slice(b"STORED\r\n");
         }
-    } else {
-        CommandResponse::Error
     }
 }

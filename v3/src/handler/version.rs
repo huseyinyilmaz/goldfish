@@ -1,10 +1,3 @@
-use std::sync::{Arc, Mutex};
-
-use crate::{
-    parser::{command::Command, response::CommandResponse},
-    state::State,
-};
-
-pub fn handle_version(_state: &Arc<Mutex<State>>, _command: Command) -> CommandResponse {
-    CommandResponse::Version(String::from("Goldfish 1.0"))
+pub fn handle_version(output: &mut Vec<u8>) {
+    output.extend_from_slice(b"VERSION Goldfish 1.0\r\n");
 }
