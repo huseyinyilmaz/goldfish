@@ -28,6 +28,7 @@ pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
         }
         let app_state = state.read().unwrap();
         let now = SystemTime::now();
+        let mut found = false;
         for key in &keys {
             if let Some(data) = app_state.get_key(key) {
                 let duration_since_seconds =
@@ -36,8 +37,18 @@ pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
                     || (data.timeout > 0 && duration_since_seconds < data.timeout as u64)
                 {
                     append_value(output, key, data.flags, &data.data);
+                    found = true;
                 }
             }
+        }
+        if found {
+            app_state
+                .get_hits
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        } else {
+            app_state
+                .get_misses
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         }
         output.extend_from_slice(b"END\r\n");
     }

@@ -9,6 +9,7 @@ mod main_handler;
 mod prepend;
 mod replace;
 mod set;
+mod stats;
 mod version;
 
 pub use main_handler::handle_command;

@@ -20,7 +20,7 @@ For a functional memcached server that real clients can rely on, the following c
 | `replace` | ✅ | Conditional update — "store only if key exists" |
 | `append` / `prepend` | ✅ | Modify existing values |
 | `incr` / `decr` | ✅ | Atomic counters — widely used for rate limits, sessions |
-| `stats` | ❌ | Monitoring — required for health checks in production |
+| `stats` | ✅ | Monitoring — required for health checks in production |
 | `flush_all` | ✅ | Bulk invalidation — needed for cache lifecycle management |
 | `quit` | ✅ | Clean connection teardown |
 | `version` | ✅ | Server identification |
@@ -56,7 +56,7 @@ All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) 
 | `delete` | ✅ | Full support, including `noreply` |
 | `incr` / `decr` | ✅ | Full support, including `noreply` |
 | `touch` | ❌ | |
-| `stats` | ❌ | |
+| `stats` | ✅ | General stats with counter tracking (cmd_get/cmd_set/get_hits/get_misses) |
 | `flush_all` | ✅ | Immediate flush (delay parsed but not applied) |
 | `version` | ✅ | |
 | `quit` | ✅ | |

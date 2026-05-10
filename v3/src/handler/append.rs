@@ -32,6 +32,7 @@ pub fn handle_append(state: &Arc<RwLock<State>>, command: Command, output: &mut 
                 time: SystemTime::now(),
             };
             app_state.set_key(key, data);
+            app_state.increment_total_items();
             if !noreply {
                 output.extend_from_slice(b"STORED\r\n");
             }

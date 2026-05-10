@@ -242,13 +242,6 @@ fn test_touch_not_implemented() {
 }
 
 #[test]
-fn test_stats_not_implemented() {
-    let state = common::new_state();
-    let result = common::process(&state, "stats\r\n");
-    assert_eq!(result, "ERROR\r\n");
-}
-
-#[test]
 fn test_mg_not_implemented() {
     let state = common::new_state();
     let result = common::process(&state, "mg key v\r\n");
