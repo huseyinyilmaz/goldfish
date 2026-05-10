@@ -19,6 +19,10 @@ pub fn handle_replace(state: &Arc<RwLock<State>>, command: Command, output: &mut
         value_size: _,
     } = command
     {
+        if key.len() > 250 {
+            output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n");
+            return;
+        }
         let mut app_state = state.write().unwrap();
         if app_state.get_key(&key).is_none() {
             if !noreply {

@@ -19,6 +19,10 @@ fn append_value(output: &mut Vec<u8>, key: &[u8], flags: i32, value: &[u8]) {
 
 pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
     if let Command::Get { keys } = command {
+        if keys.iter().any(|k| k.len() > 250) {
+            output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n");
+            return;
+        }
         let app_state = state.read().unwrap();
         let now = SystemTime::now();
         for key in &keys {
