@@ -6,6 +6,7 @@ use std::{
 use crate::{
     parser::command::Command,
     state::{Data, State},
+    utils,
 };
 
 pub fn normalize_timeout(timeout: i64) -> i64 {
@@ -30,7 +31,7 @@ pub fn handle_set(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
         value_size: _,
     } = command
     {
-        if key.len() > 250 {
+        if key.len() > 250 || utils::has_control_chars(&key) {
             output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n");
             return;
         }

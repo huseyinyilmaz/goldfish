@@ -7,6 +7,7 @@ use crate::{
     handler::set::normalize_timeout,
     parser::command::Command,
     state::{Data, State},
+    utils,
 };
 
 pub fn handle_replace(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
@@ -19,7 +20,7 @@ pub fn handle_replace(state: &Arc<RwLock<State>>, command: Command, output: &mut
         value_size: _,
     } = command
     {
-        if key.len() > 250 {
+        if key.len() > 250 || utils::has_control_chars(&key) {
             output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n");
             return;
         }
