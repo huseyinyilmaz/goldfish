@@ -57,17 +57,35 @@ fn test_gats_not_implemented() {
 }
 
 #[test]
-fn test_delete_not_implemented() {
+fn test_delete_not_found() {
     let state = common::new_state();
     let result = common::process(&state, "delete key\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "NOT_FOUND\r\n");
 }
 
 #[test]
-fn test_delete_with_noreply_not_implemented() {
+fn test_delete_with_noreply_not_found() {
     let state = common::new_state();
     let result = common::process(&state, "delete key noreply\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "");
+}
+
+#[test]
+fn test_delete_found() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "delete key\r\n");
+    assert_eq!(result, "DELETED\r\n");
+}
+
+#[test]
+fn test_delete_twice() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "delete key\r\n");
+    assert_eq!(result, "DELETED\r\n");
+    let result = common::process(&state, "delete key\r\n");
+    assert_eq!(result, "NOT_FOUND\r\n");
 }
 
 #[test]

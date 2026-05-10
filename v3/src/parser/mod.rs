@@ -1,4 +1,5 @@
 pub mod command;
+pub mod delete;
 pub mod get;
 pub mod main_parser;
 pub mod quit;

@@ -1,3 +1,4 @@
+mod delete;
 mod get;
 mod main_handler;
 mod set;

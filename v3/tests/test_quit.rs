@@ -15,11 +15,7 @@ fn test_quit_basic() {
 fn test_quit_pipeline_termination() {
     let state = common::new_state();
     let mut output = Vec::new();
-    let result = process_input(
-        &state,
-        b"version\r\nquit\r\nversion\r\n",
-        &mut output,
-    );
+    let result = process_input(&state, b"version\r\nquit\r\nversion\r\n", &mut output);
     assert!(!result);
     assert_eq!(output, b"VERSION Goldfish 1.0\r\n");
 }
@@ -28,11 +24,7 @@ fn test_quit_pipeline_termination() {
 fn test_quit_after_set() {
     let state = common::new_state();
     let mut output = Vec::new();
-    let result = process_input(
-        &state,
-        b"set key 0 0 5\r\nhello\r\nquit\r\n",
-        &mut output,
-    );
+    let result = process_input(&state, b"set key 0 0 5\r\nhello\r\nquit\r\n", &mut output);
     assert!(!result);
     assert_eq!(output, b"STORED\r\n");
 }

@@ -25,6 +25,11 @@ pub enum Command {
     Gat,
     Gats,
     */
+    // Deletion commands
+    Delete {
+        key: Vec<u8>,
+        noreply: bool,
+    },
     // Meta comands
     Version,
     Quit,

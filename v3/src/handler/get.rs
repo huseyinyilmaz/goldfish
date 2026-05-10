@@ -23,10 +23,8 @@ pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
         let now = SystemTime::now();
         for key in &keys {
             if let Some(data) = app_state.get_key(key) {
-                let duration_since_seconds = now
-                    .duration_since(data.time)
-                    .unwrap_or_default()
-                    .as_secs();
+                let duration_since_seconds =
+                    now.duration_since(data.time).unwrap_or_default().as_secs();
                 if data.timeout == 0 || duration_since_seconds < data.timeout {
                     append_value(output, key, data.flags, &data.data);
                 }
