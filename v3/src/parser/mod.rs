@@ -1,3 +1,4 @@
+pub mod add;
 pub mod command;
 pub mod delete;
 pub mod get;
