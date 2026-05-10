@@ -1,11 +1,11 @@
 use goldfish::process_input;
 use goldfish::state::State;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 #[test]
 fn test_version() {
     let app_state = State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state));
+    let app_state_arc = Arc::new(RwLock::new(app_state));
     let mut output = Vec::new();
     let input = "version\r\n";
     process_input(&app_state_arc, input.as_bytes(), &mut output);

@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 use goldfish::process_input;
 use goldfish::state::State;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 const TOTAL_OPS: usize = 10000;
@@ -35,7 +35,7 @@ fn build_batch(base_key: usize, count: usize, write_pct: usize) -> Vec<u8> {
     cmds
 }
 
-fn pre_populate(state: &Arc<Mutex<State>>, n: usize) {
+fn pre_populate(state: &Arc<RwLock<State>>, n: usize) {
     for i in 0..n {
         let mut output = Vec::new();
         process_input(state, &make_set_cmd(i), &mut output);
@@ -48,7 +48,7 @@ fn st_write_heavy(c: &mut Criterion) {
     c.bench_function("st_write_heavy_5p_read_95p_write", |b| {
         b.iter_batched(
             || {
-                let state = Arc::new(Mutex::new(State::new()));
+                let state = Arc::new(RwLock::new(State::new()));
                 let cmds = build_batch(0, TOTAL_OPS, 95);
                 (state, cmds)
             },
@@ -65,7 +65,7 @@ fn st_read_heavy(c: &mut Criterion) {
     c.bench_function("st_read_heavy_95p_read_5p_write", |b| {
         b.iter_batched(
             || {
-                let state = Arc::new(Mutex::new(State::new()));
+                let state = Arc::new(RwLock::new(State::new()));
                 pre_populate(&state, TOTAL_OPS);
                 let cmds = build_batch(TOTAL_OPS, TOTAL_OPS, 5);
                 (state, cmds)
@@ -83,7 +83,7 @@ fn st_balanced(c: &mut Criterion) {
     c.bench_function("st_balanced_50p_read_50p_write", |b| {
         b.iter_batched(
             || {
-                let state = Arc::new(Mutex::new(State::new()));
+                let state = Arc::new(RwLock::new(State::new()));
                 let mut cmds = Vec::new();
                 for i in 0..TOTAL_OPS / 2 {
                     cmds.extend_from_slice(&make_set_cmd(i));
@@ -106,7 +106,7 @@ fn mt_write_heavy(c: &mut Criterion) {
     c.bench_function("mt_write_heavy_5p_read_95p_write", |b| {
         b.iter_batched(
             || {
-                let state = Arc::new(Mutex::new(State::new()));
+                let state = Arc::new(RwLock::new(State::new()));
                 let batches: Vec<Vec<u8>> = (0..CLIENTS)
                     .map(|c| build_batch(c * COMMANDS_PER_CLIENT, COMMANDS_PER_CLIENT, 95))
                     .collect();
@@ -131,7 +131,7 @@ fn mt_read_heavy(c: &mut Criterion) {
     c.bench_function("mt_read_heavy_95p_read_5p_write", |b| {
         b.iter_batched(
             || {
-                let state = Arc::new(Mutex::new(State::new()));
+                let state = Arc::new(RwLock::new(State::new()));
                 pre_populate(&state, TOTAL_OPS);
                 let batches: Vec<Vec<u8>> = (0..CLIENTS)
                     .map(|c| {
@@ -159,7 +159,7 @@ fn mt_balanced(c: &mut Criterion) {
     c.bench_function("mt_balanced_50p_read_50p_write", |b| {
         b.iter_batched(
             || {
-                let state = Arc::new(Mutex::new(State::new()));
+                let state = Arc::new(RwLock::new(State::new()));
                 let batches: Vec<Vec<u8>> = (0..CLIENTS)
                     .map(|c| {
                         let mut cmds = Vec::new();

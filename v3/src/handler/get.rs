@@ -1,13 +1,13 @@
 use std::{
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
     time::SystemTime,
 };
 
 use crate::{parser::command::Command, state::State};
 
-pub fn handle_get(state: &Arc<Mutex<State>>, command: Command, output: &mut Vec<u8>) {
+pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
     if let Command::Get { key } = command {
-        let app_state = state.lock().unwrap();
+        let app_state = state.read().unwrap();
         match app_state.get_key(&key) {
             Some(data) => {
                 let duration_since_seconds = SystemTime::now()

@@ -1,11 +1,11 @@
 use goldfish::process_input;
 use goldfish::state::State;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 
 #[test]
 fn test_set_and_get_found() {
     let app_state = State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state));
+    let app_state_arc = Arc::new(RwLock::new(app_state));
 
     let mut output = Vec::new();
     let input_set = "set key 0 10 5\r\nvalue\r\n";
@@ -24,7 +24,7 @@ fn test_set_and_get_found() {
 #[test]
 fn test_set_with_noreploy_and_get_found() {
     let app_state = State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state));
+    let app_state_arc = Arc::new(RwLock::new(app_state));
 
     let mut output = Vec::new();
     let input_set = "set key 0 10 5 noreply\r\nvalue\r\n";
@@ -43,7 +43,7 @@ fn test_set_with_noreploy_and_get_found() {
 #[test]
 fn test_set_and_get_not_found() {
     let app_state = State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state));
+    let app_state_arc = Arc::new(RwLock::new(app_state));
 
     let mut output = Vec::new();
     let input_set = "set key 0 10 5\r\nvalue\r\n";
@@ -59,7 +59,7 @@ fn test_set_and_get_not_found() {
 #[test]
 fn test_set_and_get_multiple_commands_on_one_request_found() {
     let app_state = State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state));
+    let app_state_arc = Arc::new(RwLock::new(app_state));
 
     let mut output = Vec::new();
     let input = "set key 0 10 5\r\nvalue\r\nget key\r\n";

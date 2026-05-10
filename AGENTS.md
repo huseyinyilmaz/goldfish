@@ -68,9 +68,9 @@ main.rs → lib.rs::run() → run_server()
                               └── handler/*.rs (command handlers)
 ```
 
-Public API for testing: `goldfish::process_input(state: &Arc<Mutex<State>>, input: &[u8]) -> Option<Vec<u8>>`.
+Public API for testing: `goldfish::process_input(state: &Arc<RwLock<State>>, input: &[u8], output: &mut Vec<u8>) -> bool`.
 
-State is an `Arc<Mutex<State>>` — a single `HashMap<Vec<u8>, Data>` shared across all connections.
+State is an `Arc<RwLock<State>>` — a single `HashMap<Vec<u8>, Data>` shared across all connections. GETs acquire a read lock (allowing parallel reads), SETs acquire a write lock.
 
 Parsers use `nom::branch::alt` with a catch-all `CannotParse` fallback — always succeeds.
 

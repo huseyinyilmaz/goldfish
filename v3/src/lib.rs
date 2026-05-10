@@ -5,7 +5,7 @@ pub mod state;
 mod utils;
 
 use std::net::SocketAddr;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
 use log::{debug, info};
@@ -15,7 +15,11 @@ use parser::make_parser;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::{net::TcpListener, time::sleep};
 
-pub fn process_input(state: &Arc<Mutex<state::State>>, input: &[u8], output: &mut Vec<u8>) -> bool {
+pub fn process_input(
+    state: &Arc<RwLock<state::State>>,
+    input: &[u8],
+    output: &mut Vec<u8>,
+) -> bool {
     let mut parser = make_parser();
     let mut parser_input = input;
     while !parser_input.is_empty() {
@@ -34,7 +38,7 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     sleep(Duration::from_secs(1)).await;
     let app_settings = settings::Settings::new()?;
     let app_state = state::State::new();
-    let app_state_arc = Arc::new(Mutex::new(app_state));
+    let app_state_arc = Arc::new(RwLock::new(app_state));
     let socket_addr = SocketAddr::new(app_settings.ip_address, app_settings.port);
     let listener = TcpListener::bind(socket_addr).await?;
     info!("Listening on {socket_addr}");

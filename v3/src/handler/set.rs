@@ -1,5 +1,5 @@
 use std::{
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
     time::SystemTime,
 };
 
@@ -8,7 +8,7 @@ use crate::{
     state::{Data, State},
 };
 
-pub fn handle_set(state: &Arc<Mutex<State>>, command: Command, output: &mut Vec<u8>) {
+pub fn handle_set(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
     if let Command::Set {
         key,
         flags,
@@ -18,7 +18,7 @@ pub fn handle_set(state: &Arc<Mutex<State>>, command: Command, output: &mut Vec<
         value_size: _,
     } = command
     {
-        let mut app_state = state.lock().unwrap();
+        let mut app_state = state.write().unwrap();
         let data = Data {
             data: value,
             timeout,
