@@ -105,7 +105,7 @@ fn test_get_after_delete() {
 fn test_get_malformed_no_key() {
     let state = common::new_state();
     let result = common::process(&state, "get\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
 }
 
 #[test]

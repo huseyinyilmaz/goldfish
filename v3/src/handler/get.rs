@@ -19,7 +19,10 @@ fn append_value(output: &mut Vec<u8>, key: &[u8], flags: i32, value: &[u8]) {
 
 pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
     if let Command::Get { keys } = command {
-        if keys.iter().any(|k| k.len() > 250 || utils::has_control_chars(k)) {
+        if keys
+            .iter()
+            .any(|k| k.len() > 250 || utils::has_control_chars(k))
+        {
             output.extend_from_slice(b"CLIENT_ERROR bad command line format\r\n");
             return;
         }
@@ -29,7 +32,9 @@ pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
             if let Some(data) = app_state.get_key(key) {
                 let duration_since_seconds =
                     now.duration_since(data.time).unwrap_or_default().as_secs();
-                if data.timeout == 0 || (data.timeout > 0 && duration_since_seconds < data.timeout as u64) {
+                if data.timeout == 0
+                    || (data.timeout > 0 && duration_since_seconds < data.timeout as u64)
+                {
                     append_value(output, key, data.flags, &data.data);
                 }
             }

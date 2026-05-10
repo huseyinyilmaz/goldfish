@@ -61,5 +61,6 @@ pub enum Command {
     // Meta comands
     Version,
     Quit,
+    Malformed,
     CannotParse(String),
 }

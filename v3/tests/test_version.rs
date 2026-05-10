@@ -53,5 +53,5 @@ fn test_version_no_crlf() {
 fn test_version_trailing_garbage() {
     let state = common::new_state();
     let result = common::process(&state, "version x\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
 }

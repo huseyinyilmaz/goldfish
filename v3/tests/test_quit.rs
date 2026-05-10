@@ -47,14 +47,14 @@ fn test_quit_no_crlf() {
 fn test_quit_extra_args() {
     let state = common::new_state();
     let result = common::process(&state, "quit now\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
 }
 
 #[test]
 fn test_quit_trailing_space() {
     let state = common::new_state();
     let result = common::process(&state, "quit \r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
 }
 
 #[test]

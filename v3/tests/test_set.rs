@@ -125,49 +125,49 @@ fn test_set_noreply_without_leading_space() {
 fn test_set_malformed_short_value() {
     let state = common::new_state();
     let result = common::process(&state, "set key 0 0 5\r\nab\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
 }
 
 #[test]
 fn test_set_malformed_no_crlf_after_value() {
     let state = common::new_state();
     let result = common::process(&state, "set key 0 0 5\r\nhello");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
 }
 
 #[test]
 fn test_set_malformed_missing_args() {
     let state = common::new_state();
     let result = common::process(&state, "set key\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
 }
 
 #[test]
 fn test_set_malformed_no_value_at_all() {
     let state = common::new_state();
     let result = common::process(&state, "set key 0 0 5\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
 }
 
 #[test]
 fn test_set_malformed_bad_flags() {
     let state = common::new_state();
     let result = common::process(&state, "set key abc 0 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
 }
 
 #[test]
 fn test_set_malformed_bad_timeout() {
     let state = common::new_state();
     let result = common::process(&state, "set key 0 abc 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
 }
 
 #[test]
 fn test_set_malformed_bad_bytes() {
     let state = common::new_state();
     let result = common::process(&state, "set key 0 0 abc\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
 }
 
 #[test]
