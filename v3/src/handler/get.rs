@@ -1,36 +1,37 @@
 use std::{
-    sync::{Arc, Mutex},
+    sync::{Arc, RwLock},
     time::SystemTime,
 };
 
-use crate::{
-    parser::{command::Command, response::CommandResponse},
-    state::State,
-};
+use crate::{parser::command::Command, state::State};
 
-pub fn handle_get(state: &Arc<Mutex<State>>, command: Command) -> CommandResponse {
-    if let Command::Get { key } = command {
-        let app_state = state.lock().unwrap();
+fn append_value(output: &mut Vec<u8>, key: &[u8], flags: i32, value: &[u8]) {
+    output.extend_from_slice(b"VALUE ");
+    output.extend_from_slice(key);
+    output.extend_from_slice(b" ");
+    output.extend_from_slice(flags.to_string().as_bytes());
+    output.extend_from_slice(b" ");
+    output.extend_from_slice(value.len().to_string().as_bytes());
+    output.extend_from_slice(b"\r\n");
+    output.extend_from_slice(value);
+    output.extend_from_slice(b"\r\n");
+}
 
-        match app_state.get_key(&key) {
-            Some(data) => {
-                let duration_since_seconds = SystemTime::now()
+pub fn handle_get(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
+    if let Command::Get { keys } = command {
+        let app_state = state.read().unwrap();
+        let now = SystemTime::now();
+        for key in &keys {
+            if let Some(data) = app_state.get_key(key) {
+                let duration_since_seconds = now
                     .duration_since(data.time)
                     .unwrap_or_default()
                     .as_secs();
-                if data.timeout > 0 && duration_since_seconds >= data.timeout {
-                    CommandResponse::GetNotFound
-                } else {
-                    CommandResponse::Get {
-                        key,
-                        flags: data.flags,
-                        data: data.data.clone(),
-                    }
+                if data.timeout == 0 || duration_since_seconds < data.timeout {
+                    append_value(output, key, data.flags, &data.data);
                 }
             }
-            None => CommandResponse::GetNotFound,
         }
-    } else {
-        CommandResponse::Error
+        output.extend_from_slice(b"END\r\n");
     }
 }

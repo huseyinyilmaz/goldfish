@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+MANIFEST="${MANIFEST:-$SCRIPT_DIR/Cargo.toml}"
+CRITERION_DIR="$SCRIPT_DIR/target/criterion"
+BASELINE_DIR="$SCRIPT_DIR/target/criterion.baseline"
+
+usage() {
+    cat <<'USAGE'
+Usage: run <command> [options]
+
+Commands:
+  build                           cargo build
+  build --release                 cargo build --release --locked
+  check                           cargo check
+  test [name]                     cargo test (optional test name filter)
+  fmt                             cargo fmt --check
+  clippy                          cargo clippy -D warnings
+  bench                           run benchmarks against saved baseline
+  bench baseline create [name]    create/replace a baseline
+  bench baseline delete [name]    delete a baseline
+  bench baseline list             list all baselines
+  bench --baseline <name>         run against named baseline
+USAGE
+}
+
+case "${1:-help}" in
+    build)
+        shift
+        if [ "${1:-}" = "--release" ]; then
+            exec cargo build --release --locked --manifest-path="$MANIFEST"
+        fi
+        exec cargo build --manifest-path="$MANIFEST"
+        ;;
+    check)
+        exec cargo check --manifest-path="$MANIFEST"
+        ;;
+    test)
+        shift
+        exec cargo test --manifest-path="$MANIFEST" -- "$@"
+        ;;
+    fmt)
+        exec cargo fmt --manifest-path="$MANIFEST" -- --check
+        ;;
+    clippy)
+        exec cargo clippy --manifest-path="$MANIFEST" -- -D warnings
+        ;;
+    bench)
+        shift
+        case "${1:-}" in
+            baseline)
+                shift
+                case "${1:-}" in
+                    create)
+                        shift
+                        name="${1:-}"
+                        if [ -n "$name" ]; then
+                            case "$name" in
+                                create|delete|list) echo "Invalid baseline name: $name" >&2; exit 1 ;;
+                            esac
+                        fi
+                        echo "Running benchmarks to create baseline${name:+.$name}..."
+                        cargo criterion --manifest-path="$MANIFEST"
+                        target="${BASELINE_DIR}${name:+.$name}"
+                        rm -rf "$target"
+                        cp -r "$CRITERION_DIR" "$target"
+                        echo "Baseline${name:+.$name} saved."
+                        ;;
+                    delete)
+                        shift
+                        name="${1:-}"
+                        if [ -z "$name" ]; then
+                            echo "Usage: run bench baseline delete <name>" >&2
+                            exit 1
+                        fi
+                        target="${BASELINE_DIR}.$name"
+                        if [ ! -d "$target" ]; then
+                            echo "Baseline '$name' not found." >&2
+                            exit 1
+                        fi
+                        rm -rf "$target"
+                        echo "Baseline '$name' deleted."
+                        ;;
+                    list)
+                        echo "Saved baselines:"
+                        found=false
+                        for d in "$BASELINE_DIR" "$BASELINE_DIR".*; do
+                            [ -d "$d" ] || continue
+                            found=true
+                            label="${d#$BASELINE_DIR}"
+                            label="${label#.}"
+                            size="$(du -sh "$d" 2>/dev/null | cut -f1)"
+                            echo "  ${label:-<default>}    ($size)"
+                        done
+                        if ! $found; then
+                            echo "  (none)"
+                        fi
+                        ;;
+                    *)
+                        echo "Usage: ./run bench baseline <create|delete|list> [name]" >&2
+                        exit 1
+                        ;;
+                esac
+                ;;
+            --baseline)
+                shift
+                name="${1:-}"
+                if [ -z "$name" ]; then
+                    echo "Usage: ./run bench --baseline <name>" >&2
+                    exit 1
+                fi
+                source="${BASELINE_DIR}.$name"
+                if [ ! -d "$source" ]; then
+                    echo "Baseline '$name' not found." >&2
+                    exit 1
+                fi
+                rm -rf "$CRITERION_DIR"
+                cp -r "$source" "$CRITERION_DIR"
+                echo "Running benchmarks against baseline '$name'..."
+                exec cargo criterion --manifest-path="$MANIFEST"
+                ;;
+            *)
+                if [ $# -gt 0 ]; then
+                    echo "Unknown bench subcommand: $1" >&2
+                    exit 1
+                fi
+                # default: run against unnamed baseline
+                if [ ! -d "$BASELINE_DIR" ]; then
+                    echo "No baseline found. Create one with 'run bench baseline create [name]'." >&2
+                    exit 1
+                fi
+                rm -rf "$CRITERION_DIR"
+                cp -r "$BASELINE_DIR" "$CRITERION_DIR"
+                echo "Running benchmarks against saved baseline..."
+                exec cargo criterion --manifest-path="$MANIFEST"
+                ;;
+        esac
+        ;;
+    help|--help|-h)
+        usage
+        ;;
+    *)
+        echo "Unknown command: $1" >&2
+        usage
+        exit 1
+        ;;
+esac
