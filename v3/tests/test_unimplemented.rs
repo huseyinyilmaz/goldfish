@@ -176,17 +176,62 @@ fn test_delete_twice() {
 }
 
 #[test]
-fn test_incr_not_implemented() {
+fn test_incr_not_found() {
     let state = common::new_state();
     let result = common::process(&state, "incr counter 1\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "NOT_FOUND\r\n");
 }
 
 #[test]
-fn test_decr_not_implemented() {
+fn test_decr_not_found() {
     let state = common::new_state();
     let result = common::process(&state, "decr counter 1\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "NOT_FOUND\r\n");
+}
+
+#[test]
+fn test_incr_basic() {
+    let state = common::new_state();
+    common::process(&state, "set counter 0 0 1\r\n5\r\n");
+    let result = common::process(&state, "incr counter 3\r\n");
+    assert_eq!(result, "8\r\n");
+}
+
+#[test]
+fn test_decr_basic() {
+    let state = common::new_state();
+    common::process(&state, "set counter 0 0 1\r\n5\r\n");
+    let result = common::process(&state, "decr counter 2\r\n");
+    assert_eq!(result, "3\r\n");
+}
+
+#[test]
+fn test_decr_clamp_to_zero() {
+    let state = common::new_state();
+    common::process(&state, "set counter 0 0 1\r\n5\r\n");
+    let result = common::process(&state, "decr counter 10\r\n");
+    assert_eq!(result, "0\r\n");
+}
+
+#[test]
+fn test_incr_noreply() {
+    let state = common::new_state();
+    common::process(&state, "set counter 0 0 1\r\n5\r\n");
+    let result = common::process(&state, "incr counter 3 noreply\r\n");
+    assert_eq!(result, "");
+    let result = common::process(&state, "get counter\r\n");
+    assert_eq!(result, "VALUE counter 0 1\r\n8\r\nEND\r\n");
+}
+
+#[test]
+fn test_decr_from_set_string_fails() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "incr key 1\r\n");
+    assert_eq!(
+        result,
+        "CLIENT_ERROR cannot increment or decrement non-numeric value\r\n"
+    );
 }
 
 #[test]

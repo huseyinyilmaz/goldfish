@@ -19,7 +19,7 @@ For a functional memcached server that real clients can rely on, the following c
 | `add` | ✅ | Conditional create — "store only if key doesn't exist" |
 | `replace` | ✅ | Conditional update — "store only if key exists" |
 | `append` / `prepend` | ✅ | Modify existing values |
-| `incr` / `decr` | ❌ | Atomic counters — widely used for rate limits, sessions |
+| `incr` / `decr` | ✅ | Atomic counters — widely used for rate limits, sessions |
 | `stats` | ❌ | Monitoring — required for health checks in production |
 | `flush_all` | ❌ | Bulk invalidation — needed for cache lifecycle management |
 | `quit` | ✅ | Clean connection teardown |
@@ -54,7 +54,7 @@ All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) 
 | Command | Status | Notes |
 |---|---|---|
 | `delete` | ✅ | Full support, including `noreply` |
-| `incr` / `decr` | ❌ | |
+| `incr` / `decr` | ✅ | Full support, including `noreply` |
 | `touch` | ❌ | |
 | `stats` | ❌ | |
 | `flush_all` | ❌ | |
