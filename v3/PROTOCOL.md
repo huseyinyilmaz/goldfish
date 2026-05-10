@@ -91,6 +91,32 @@ delete <key> [noreply]\r\n
 | `DELETED\r\n` | Success |
 | `NOT_FOUND\r\n` | Key does not exist |
 
+## Arithmetic commands: `incr`, `decr`
+
+**Request:**
+
+```
+incr <key> <delta> [noreply]\r\n
+decr <key> <delta> [noreply]\r\n
+```
+
+| Field | Details |
+|---|---|
+| `<key>` | Existing key whose value is a decimal number |
+| `<delta>` | 64-bit unsigned integer to add or subtract |
+
+**Responses:**
+
+| Response | When |
+|---|---|
+| `<new_value>\r\n` | Success (new value as decimal string) |
+| `NOT_FOUND\r\n` | Key does not exist |
+| `CLIENT_ERROR cannot increment or decrement non-numeric value\r\n` | Stored value is not a valid unsigned integer |
+
+- `decr` clamps to 0 (never goes below)
+- Original flags and exptime are preserved
+- The stored value is replaced with the new decimal string
+
 ## Meta commands
 
 ### `version`
@@ -120,6 +146,8 @@ Response: none (server closes connection).
 | `append` | Yes | |
 | `prepend` | Yes | |
 | `delete` | Yes | |
+| `incr` | Yes | |
+| `decr` | Yes | |
 | `version` | Yes | |
 | `quit` | Yes | |
 | `cas` | No | |

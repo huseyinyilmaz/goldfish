@@ -1,8 +1,10 @@
 pub mod add;
 pub mod append;
 pub mod command;
+pub mod decr;
 pub mod delete;
 pub mod get;
+pub mod incr;
 pub mod main_parser;
 pub mod prepend;
 pub mod quit;

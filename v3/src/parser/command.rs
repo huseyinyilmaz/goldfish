@@ -53,6 +53,17 @@ pub enum Command {
     Gat,
     Gats,
     */
+    // Arithmetic commands
+    Incr {
+        key: Vec<u8>,
+        delta: u64,
+        noreply: bool,
+    },
+    Decr {
+        key: Vec<u8>,
+        delta: u64,
+        noreply: bool,
+    },
     // Deletion commands
     Delete {
         key: Vec<u8>,
