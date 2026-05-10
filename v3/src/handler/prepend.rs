@@ -1,0 +1,37 @@
+use std::{
+    sync::{Arc, RwLock},
+    time::SystemTime,
+};
+
+use crate::{
+    parser::command::Command,
+    state::{Data, State},
+};
+
+pub fn handle_prepend(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
+    if let Command::Prepend {
+        key,
+        value,
+        noreply,
+        ..
+    } = command
+    {
+        let mut app_state = state.write().unwrap();
+        if let Some(existing) = app_state.get_key(&key) {
+            let mut new_data = value.clone();
+            new_data.extend_from_slice(&existing.data);
+            let data = Data {
+                data: new_data,
+                timeout: existing.timeout,
+                flags: existing.flags,
+                time: SystemTime::now(),
+            };
+            app_state.set_key(key, data);
+            if !noreply {
+                output.extend_from_slice(b"STORED\r\n");
+            }
+        } else if !noreply {
+            output.extend_from_slice(b"NOT_STORED\r\n");
+        }
+    }
+}

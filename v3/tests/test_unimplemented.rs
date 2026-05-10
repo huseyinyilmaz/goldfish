@@ -68,17 +68,51 @@ fn test_replace_noreply() {
 }
 
 #[test]
-fn test_append_not_implemented() {
+fn test_append_not_stored() {
     let state = common::new_state();
-    let result = common::process(&state, "append key 0 0 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    let result = common::process(&state, "append key 0 0 5\r\nworld\r\n");
+    assert_eq!(result, "NOT_STORED\r\n");
 }
 
 #[test]
-fn test_prepend_not_implemented() {
+fn test_append_stored() {
     let state = common::new_state();
-    let result = common::process(&state, "prepend key 0 0 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "append key 0 0 5\r\nworld\r\n");
+    assert_eq!(result, "STORED\r\n");
+}
+
+#[test]
+fn test_append_updates_value() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    common::process(&state, "append key 0 0 5\r\nworld\r\n");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 10\r\nhelloworld\r\nEND\r\n");
+}
+
+#[test]
+fn test_prepend_not_stored() {
+    let state = common::new_state();
+    let result = common::process(&state, "prepend key 0 0 5\r\nworld\r\n");
+    assert_eq!(result, "NOT_STORED\r\n");
+}
+
+#[test]
+fn test_prepend_stored() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "prepend key 0 0 5\r\nworld\r\n");
+    assert_eq!(result, "STORED\r\n");
+}
+
+#[test]
+fn test_prepend_updates_value() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    common::process(&state, "prepend key 0 0 5\r\nworld\r\n");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 10\r\nworldhello\r\nEND\r\n");
 }
 
 #[test]
