@@ -34,10 +34,37 @@ fn test_add_existing_key_value_unchanged() {
 }
 
 #[test]
-fn test_replace_not_implemented() {
+fn test_replace_not_stored() {
     let state = common::new_state();
     let result = common::process(&state, "replace key 0 0 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "NOT_STORED\r\n");
+}
+
+#[test]
+fn test_replace_stored() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "replace key 0 0 5\r\nworld\r\n");
+    assert_eq!(result, "STORED\r\n");
+}
+
+#[test]
+fn test_replace_updates_value() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    common::process(&state, "replace key 0 0 5\r\nworld\r\n");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 5\r\nworld\r\nEND\r\n");
+}
+
+#[test]
+fn test_replace_noreply() {
+    let state = common::new_state();
+    common::process(&state, "set key 0 0 5\r\nhello\r\n");
+    let result = common::process(&state, "replace key 0 0 5 noreply\r\nworld\r\n");
+    assert_eq!(result, "");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 5\r\nworld\r\nEND\r\n");
 }
 
 #[test]

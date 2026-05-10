@@ -2,7 +2,8 @@ use nom::Parser;
 
 use super::{
     add::make_add_parser, command::Command, delete::make_delete_parser, get::make_get_parser,
-    quit::make_quit_parser, set::make_set_parser, version::make_version_parser,
+    quit::make_quit_parser, replace::make_replace_parser, set::make_set_parser,
+    version::make_version_parser,
 };
 
 fn make_cannotparse_parser<'a>(
@@ -17,6 +18,7 @@ pub fn make_parser<'a>(
         make_version_parser(),
         make_delete_parser(),
         make_add_parser(),
+        make_replace_parser(),
         make_set_parser(),
         make_get_parser(),
         make_cannotparse_parser(),
