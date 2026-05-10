@@ -69,6 +69,10 @@ pub enum Command {
         key: Vec<u8>,
         noreply: bool,
     },
+    FlushAll {
+        delay: u64,
+        noreply: bool,
+    },
     // Meta comands
     Version,
     Quit,

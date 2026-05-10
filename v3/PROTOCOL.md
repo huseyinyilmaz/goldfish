@@ -76,6 +76,24 @@ END\r\n
 - The `VALUE` line reports `<flags>` and `<bytes>` as originally stored
 - Data block is exactly `<bytes>` bytes
 
+## Cache management: `flush_all`
+
+**Request:**
+
+```
+flush_all [delay] [noreply]\r\n
+```
+
+| Field | Details |
+|---|---|
+| `[delay]` | Optional seconds to wait before flushing (parsed but flush is immediate in the current implementation) |
+
+**Response:**
+
+| Response | When |
+|---|---|
+| `OK\r\n` | Success |
+
 ## Deletion command: `delete`
 
 **Request:**
@@ -150,5 +168,6 @@ Response: none (server closes connection).
 | `decr` | Yes | |
 | `version` | Yes | |
 | `quit` | Yes | |
+| `flush_all` | Yes | Immediate flush (delay is parsed but not applied) |
 | `cas` | No | |
 | `gets` | No | |
