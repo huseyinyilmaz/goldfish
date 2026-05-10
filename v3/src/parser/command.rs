@@ -17,8 +17,15 @@ pub enum Command {
         value: Vec<u8>,
         value_size: u32,
     },
+    Replace {
+        key: Vec<u8>,
+        flags: i32,
+        timeout: u64,
+        noreply: bool,
+        value: Vec<u8>,
+        value_size: u32,
+    },
     /*
-    Replace,
     Append,
     Prepend,
     Cas,
