@@ -1,4 +1,5 @@
 use goldfish::process_input;
+use goldfish::process_input_buffered;
 
 mod common;
 
@@ -39,8 +40,16 @@ fn test_quit_case_sensitive() {
 #[test]
 fn test_quit_no_crlf() {
     let state = common::new_state();
-    let result = common::process(&state, "quit");
-    assert_eq!(result, "ERROR\r\n");
+    let mut buf = b"quit".to_vec();
+    let mut output = Vec::new();
+    let result = process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert!(output.is_empty());
+    buf.extend_from_slice(b"\r\n");
+    let mut output = Vec::new();
+    let result = process_input_buffered(&state, &mut buf, &mut output);
+    assert!(!result);
+    assert!(output.is_empty());
 }
 
 #[test]

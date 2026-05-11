@@ -1,3 +1,5 @@
+use goldfish::process_input_buffered;
+
 mod common;
 
 #[test]
@@ -18,8 +20,10 @@ fn test_unknown_command() {
 #[test]
 fn test_unknown_command_no_crlf() {
     let state = common::new_state();
-    let result = common::process(&state, "foobar");
-    assert_eq!(result, "ERROR\r\n");
+    let mut buf = b"foobar".to_vec();
+    let mut output = Vec::new();
+    process_input_buffered(&state, &mut buf, &mut output);
+    assert_eq!(output, b"ERROR\r\n");
 }
 
 #[test]
