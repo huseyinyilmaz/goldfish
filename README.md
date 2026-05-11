@@ -50,13 +50,13 @@ Concurrent memcached implementation in Rust.
 10,000 pipelined commands (4 KB values), Goldfish vs memcached 1.6.41.
 
 | Benchmark | Goldfish | Memcached | Ratio |
-|---|---|---|---|
-| single-threaded, 95% write | 10,135 ops/s | 8,064 ops/s | **1.26x** |
-| single-threaded, 95% read | 6,894 ops/s | 7,431 ops/s | 0.93x |
-| single-threaded, 50/50 | 7,624 ops/s | 8,089 ops/s | 0.94x |
-| 100 clients, 95% write | 10,411 ops/s | 9,817 ops/s | **1.06x** |
-| 100 clients, 95% read | 8,991 ops/s | 9,261 ops/s | 0.97x |
-| 100 clients, 50/50 | 9,416 ops/s | 10,113 ops/s | 0.93x |
+|---|---|---|---|---|
+| single-threaded, 95% write | 8,373 ops/s | 7,715 ops/s | **1.09x** |
+| single-threaded, 95% read | 6,705 ops/s | 7,258 ops/s | 0.92x |
+| single-threaded, 50/50 | 8,360 ops/s | 8,043 ops/s | **1.04x** |
+| 100 clients, 95% write | 10,596 ops/s | 9,771 ops/s | **1.08x** |
+| 100 clients, 95% read | 7,786 ops/s | 9,266 ops/s | 0.84x |
+| 100 clients, 50/50 | 9,140 ops/s | 9,719 ops/s | 0.94x |
 
-Goldfish leads on write-heavy workloads (1.06–1.26x) and trails slightly on reads (3–7%).
+Goldfish leads on write-heavy workloads (1.08–1.09x) and trails on reads (6–16%).
 
