@@ -21,8 +21,11 @@ fn test_flush_all_clears_keys() {
 fn test_flush_all_with_delay() {
     let state = common::new_state();
     common::process(&state, "set key 0 0 5\r\nhello\r\n");
-    let result = common::process(&state, "flush_all 10\r\n");
+    let result = common::process(&state, "flush_all 1\r\n");
     assert_eq!(result, "OK\r\n");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
+    std::thread::sleep(std::time::Duration::from_secs(2));
     let result = common::process(&state, "get key\r\n");
     assert_eq!(result, "END\r\n");
 }
@@ -41,8 +44,11 @@ fn test_flush_all_noreply() {
 fn test_flush_all_with_delay_and_noreply() {
     let state = common::new_state();
     common::process(&state, "set key 0 0 5\r\nhello\r\n");
-    let result = common::process(&state, "flush_all 60 noreply\r\n");
+    let result = common::process(&state, "flush_all 1 noreply\r\n");
     assert_eq!(result, "");
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
+    std::thread::sleep(std::time::Duration::from_secs(2));
     let result = common::process(&state, "get key\r\n");
     assert_eq!(result, "END\r\n");
 }

@@ -18,8 +18,10 @@ Commands:
   test [name]                     cargo test (optional test name filter)
   fmt                             cargo fmt --check
   clippy                          cargo clippy -D warnings
-  benchmark [--host HOST] [--port PORT]
-                                  run Python benchmark against a server
+   benchmark [--host HOST] [--port PORT]
+                                   run Python benchmark against a server
+   check_protocol [--host HOST] [--port PORT]
+                                   run Python protocol compliance check
   bench                           run criterion benchmarks against saved baseline
   bench baseline create [name]    create/replace a baseline
   bench baseline delete [name]    delete a baseline
@@ -154,6 +156,10 @@ case "${1:-help}" in
         shift
         exec uv run --with-requirements "$SCRIPT_DIR/scripts/requirements.txt" \
             "$SCRIPT_DIR/scripts/benchmark.py" "$@"
+        ;;
+    check_protocol)
+        shift
+        exec uv run "$SCRIPT_DIR/scripts/check_protocol.py" "$@"
         ;;
     help|--help|-h)
         usage

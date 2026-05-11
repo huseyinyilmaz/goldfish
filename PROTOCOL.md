@@ -128,7 +128,7 @@ flush_all [delay] [noreply]\r\n
 
 | Field | Details |
 |---|---|
-| `[delay]` | Optional seconds to wait before flushing (parsed but flush is immediate in the current implementation) |
+| `[delay]` | Optional seconds to wait before flushing. If present, flush is delayed by that many seconds. `0` or omitted flushes immediately. |
 
 **Response:**
 
@@ -279,7 +279,7 @@ Response: none (server closes connection).
 | `decr` | Yes | |
 | `version` | Yes | |
 | `quit` | Yes | |
-| `flush_all` | Yes | Immediate flush (delay is parsed but not applied) |
+| `flush_all` | Yes | Immediate flush; delay argument is honored |
 | `stats` | Yes | General stats with counter tracking |
 | `cas` | Yes | Check-and-set with CAS token — returns `STORED`/`EXISTS`/`NOT_FOUND` |
 | `gets` | Yes | Like `get` but includes `cas_unique` in VALUE line |
