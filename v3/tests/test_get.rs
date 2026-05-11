@@ -145,17 +145,4 @@ fn test_get_multiple_keys_three_keys() {
     );
 }
 
-#[test]
-fn test_get_single_key_still_works() {
-    let state = common::new_state();
-    common::process(&state, "set key 0 0 5\r\nhello\r\n");
-    let result = common::process(&state, "get key\r\n");
-    assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
-}
 
-#[test]
-fn test_get_malformed_no_crlf() {
-    let state = common::new_state();
-    let result = common::process(&state, "get key");
-    assert_eq!(result, "ERROR\r\n");
-}

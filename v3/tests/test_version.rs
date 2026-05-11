@@ -45,8 +45,15 @@ fn test_version_case_sensitive() {
 #[test]
 fn test_version_no_crlf() {
     let state = common::new_state();
-    let result = common::process(&state, "version");
-    assert_eq!(result, "ERROR\r\n");
+    let mut buf = b"version".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert!(output.is_empty());
+    buf.extend_from_slice(b"\r\n");
+    let mut output = Vec::new();
+    goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert_eq!(output, b"VERSION Goldfish 1.0\r\n");
 }
 
 #[test]

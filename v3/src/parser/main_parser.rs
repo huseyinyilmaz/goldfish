@@ -52,7 +52,19 @@ fn make_malformed_parser<'a>(
 
 fn make_cannotparse_parser<'a>(
 ) -> impl Parser<&'a [u8], Output = Command, Error = nom::error::Error<&'a [u8]>> {
-    nom::combinator::rest.map(|_| Command::CannotParse("Cannot Parse Input".to_owned()))
+    |input: &'a [u8]| {
+        if let Some(pos) = input.windows(2).position(|w| w == b"\r\n") {
+            Ok((
+                &input[pos + 2..],
+                Command::CannotParse("Cannot Parse Input".to_owned()),
+            ))
+        } else {
+            Err(nom::Err::Error(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Eof,
+            )))
+        }
+    }
 }
 
 pub fn make_parser<'a>(

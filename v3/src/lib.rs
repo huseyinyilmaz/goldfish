@@ -33,6 +33,59 @@ pub fn process_input(
     true
 }
 
+const COMMAND_KEYWORD_PREFIXES: &[&[u8]] = &[
+    b"set ", b"add ", b"replace ", b"append ", b"prepend ", b"cas ",
+    b"get ", b"gets ", b"gat ", b"gats ",
+    b"delete ", b"incr ", b"decr ", b"touch ",
+    b"flush_all", b"stats", b"version", b"quit",
+];
+
+fn starts_with_command_keyword(buf: &[u8]) -> bool {
+    COMMAND_KEYWORD_PREFIXES.iter().any(|p| buf.starts_with(p))
+}
+
+pub fn process_input_buffered(
+    state: &Arc<RwLock<state::State>>,
+    buf: &mut Vec<u8>,
+    output: &mut Vec<u8>,
+) -> bool {
+    while !buf.is_empty() {
+        let consumed = {
+            let mut parser = make_parser();
+            let input = buf.as_slice();
+            let input_len = input.len();
+            match parser.parse(input) {
+                Ok((rest, command)) => {
+                    let consumed = input_len - rest.len();
+                    if command == Command::Quit {
+                        return false;
+                    }
+                    handler::handle_command(state, command, output);
+                    Some(consumed)
+                }
+                Err(_) => None,
+            }
+        };
+        match consumed {
+            Some(n) => {
+                buf.drain(..n);
+            }
+            None => {
+                if starts_with_command_keyword(buf) {
+                    return true;
+                }
+                if let Some(pos) = buf.windows(2).position(|w| w == b"\r\n") {
+                    buf.drain(..pos + 2);
+                } else {
+                    buf.clear();
+                }
+                output.extend_from_slice(b"ERROR\r\n");
+            }
+        }
+    }
+    true
+}
+
 async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     info!("Starting Goldfish Server.");
     sleep(Duration::from_secs(1)).await;
@@ -46,32 +99,38 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let app_state_arc_clone = app_state_arc.clone();
         let (mut socket, _) = listener.accept().await?;
         tokio::spawn(async move {
-            let mut buf = vec![0; 1024 * 1024 * 10];
+            let mut read_buf: Vec<u8> = Vec::new();
+            let mut tmp = vec![0u8; 65536];
+
             loop {
-                let n = socket
-                    .read(&mut buf)
-                    .await
-                    .expect("Failed to read data from socket");
-
-                debug!("Number of bytes read = {n}");
-                debug!("Raw Request bytestring = {:?}", &buf[..n]);
-                debug!("Raw Request= {:?}", utils::raw_string_to_string(&buf[..n]));
-
-                if n > 0 {
-                    let mut output = Vec::new();
-                    if !process_input(&app_state_arc_clone, &buf[..n], &mut output) {
-                        debug!("Quit Command Received. Closing TCP connection.");
+                let n = match socket.read(&mut tmp).await {
+                    Ok(0) => break,
+                    Ok(n) => n,
+                    Err(e) => {
+                        log::error!("read error: {e}");
                         break;
                     }
-                    debug!("Raw Response = {:?}", utils::raw_string_to_string(&output));
-                    debug!("State = {app_state_arc_clone:?}");
-                    socket
-                        .write_all(&output)
-                        .await
-                        .expect("failed to write data to socket");
-                } else {
-                    debug!("Connection closed.");
+                };
+
+                debug!("Number of bytes read = {n}");
+                debug!("Raw Request bytestring = {:?}", &tmp[..n]);
+                debug!("Raw Request= {:?}", utils::raw_string_to_string(&tmp[..n]));
+
+                read_buf.extend_from_slice(&tmp[..n]);
+
+                let mut output = Vec::new();
+                if !process_input_buffered(&app_state_arc_clone, &mut read_buf, &mut output) {
+                    debug!("Quit Command Received. Closing TCP connection.");
                     break;
+                }
+                debug!("Raw Response = {:?}", utils::raw_string_to_string(&output));
+                debug!("State = {app_state_arc_clone:?}");
+
+                if !output.is_empty() {
+                    if let Err(e) = socket.write_all(&output).await {
+                        log::error!("write error: {e}");
+                        break;
+                    }
                 }
             }
         });

@@ -131,8 +131,15 @@ fn test_set_malformed_short_value() {
 #[test]
 fn test_set_malformed_no_crlf_after_value() {
     let state = common::new_state();
-    let result = common::process(&state, "set key 0 0 5\r\nhello");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
+    let mut buf = b"set key 0 0 5\r\nhello".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert!(output.is_empty());
+    buf.extend_from_slice(b"\r\n");
+    let mut output = Vec::new();
+    goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert_eq!(output, b"STORED\r\n");
 }
 
 #[test]

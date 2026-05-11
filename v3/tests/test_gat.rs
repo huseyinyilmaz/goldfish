@@ -30,12 +30,12 @@ fn test_gat_multi_key() {
 fn test_gat_updates_expiry() {
     let state = common::new_state();
     common::process(&state, "set key 0 0 5\r\nhello\r\n");
-    // Touch exptime to a very small value
     common::process(&state, "gat 1 key\r\n");
-    // Wait... actually, the key was just re-touched with exptime 1
-    // We can verify it's still there immediately
     let result = common::process(&state, "get key\r\n");
     assert_eq!(result, "VALUE key 0 5\r\nhello\r\nEND\r\n");
+    std::thread::sleep(std::time::Duration::from_secs(2));
+    let result = common::process(&state, "get key\r\n");
+    assert_eq!(result, "END\r\n");
 }
 
 #[test]
