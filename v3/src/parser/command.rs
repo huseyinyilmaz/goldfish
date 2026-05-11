@@ -57,10 +57,14 @@ pub enum Command {
     Gets {
         keys: Vec<Vec<u8>>,
     },
-    /*
-    Gat,
-    Gats,
-    */
+    Gat {
+        timeout: i64,
+        keys: Vec<Vec<u8>>,
+    },
+    Gats {
+        timeout: i64,
+        keys: Vec<Vec<u8>>,
+    },
     // Arithmetic commands
     Incr {
         key: Vec<u8>,
@@ -70,6 +74,12 @@ pub enum Command {
     Decr {
         key: Vec<u8>,
         delta: u64,
+        noreply: bool,
+    },
+    // Touch command
+    Touch {
+        key: Vec<u8>,
+        timeout: i64,
         noreply: bool,
     },
     // Deletion commands

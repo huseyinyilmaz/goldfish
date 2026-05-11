@@ -155,6 +155,37 @@ END\r\n
 
 Same semantics as `get` but each VALUE line includes a unique CAS token.
 
+## Touch: `touch`
+
+**Request:**
+
+```
+touch <key> <exptime> [noreply]\r\n
+```
+
+| Field | Details |
+|---|---|
+| `<exptime>` | Same semantics as storage commands — `0` = never expire, `> 2,592,000` = absolute timestamp, negative = immediate expiry |
+
+### Responses
+
+| Response | When |
+|---|---|
+| `TOUCHED\r\n` | Key exists and expiration was updated |
+| `NOT_FOUND\r\n` | Key does not exist |
+
+## Get and Touch: `gat`, `gats`
+
+**Request:**
+
+```
+gat <exptime> <key1> [<key2> ...]\r\n
+gats <exptime> <key1> [<key2> ...]\r\n
+```
+
+Like `get`/`gets` but also updates the expiration time for each returned key.
+`gats` includes the `cas_unique` token in the VALUE line (same format as `gets`).
+
 ## Check and Set: `cas`
 
 **Request:**
@@ -252,4 +283,6 @@ Response: none (server closes connection).
 | `stats` | Yes | General stats with counter tracking |
 | `cas` | Yes | Check-and-set with CAS token — returns `STORED`/`EXISTS`/`NOT_FOUND` |
 | `gets` | Yes | Like `get` but includes `cas_unique` in VALUE line |
-| `gets` | No | |
+| `gat` | Yes | Get and touch — returns value and updates expiration |
+| `gats` | Yes | Get and touch with CAS — returns value+cas and updates expiration |
+| `touch` | Yes | Update key expiration |
