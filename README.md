@@ -1,14 +1,53 @@
 
 Concurrent memcached implementation in Rust.
 
-- Sample interactions: https://github.com/huseyinyilmaz/goldfish/blob/main/notebooks/basic_commands.ipynb
-- Memcached protocol reference: https://github.com/memcached/memcached/blob/master/doc/protocol.txt
+- Sample interactions: `notebooks/basic_commands.ipynb`
+- Protocol reference: `PROTOCOL.md` and `protocol_summary.md`
+- [Memcached protocol specification](https://github.com/memcached/memcached/blob/master/doc/protocol.txt)
 
-Note: multiple versions exist as I reimplement learning more about Rust and the ecosystem. See `v3/` for the latest.
+## Protocol Support
+
+### Storage Commands
+
+| Command | Status | Notes |
+|---|---|---|
+| `set` | ✅ | Full support, including `noreply` |
+| `add` | ✅ | Full support, including `noreply` |
+| `replace` | ✅ | Full support, including `noreply` |
+| `append` | ✅ | Preserves original flags and exptime |
+| `prepend` | ✅ | Preserves original flags and exptime |
+| `cas` | ✅ | Check-and-set with CAS token — STORED/EXISTS/NOT_FOUND |
+
+### Retrieval Commands
+
+| Command | Status | Notes |
+|---|---|---|
+| `get` | ✅ | Full support, including multi-key |
+| `gets` | ✅ | Like get but includes cas_unique in VALUE line |
+| `gat` | ✅ | Get and touch — returns value and updates expiration |
+| `gats` | ✅ | Get and touch with CAS — returns value+cas and updates expiration |
+
+### Other Commands
+
+| Command | Status | Notes |
+|---|---|---|
+| `delete` | ✅ | Full support, including `noreply` |
+| `incr` / `decr` | ✅ | Full support, including `noreply` |
+| `touch` | ✅ | Update key expiration — TOUCHED/NOT_FOUND |
+| `stats` | ✅ | General stats with counter tracking |
+| `flush_all` | ✅ | Immediate flush (delay parsed but not applied) |
+| `version` | ✅ | |
+| `quit` | ✅ | |
+
+### Meta Commands
+
+| Command | Status |
+|---|---|
+| `mg`, `ms`, `md`, `ma`, `mn`, `me` | ❌ |
 
 ## Benchmarks
 
-10,000 pipelined commands (4 KB values), Goldfish v3 vs memcached 1.6.41.
+10,000 pipelined commands (4 KB values), Goldfish vs memcached 1.6.41.
 
 | Benchmark | Goldfish | Memcached | Ratio |
 |---|---|---|---|

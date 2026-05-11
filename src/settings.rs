@@ -26,17 +26,25 @@ impl Default for Settings {
 
 impl Settings {
     pub fn new() -> Result<Self, ConfigError> {
+        Self::with_overrides(None, None)
+    }
+
+    pub fn with_overrides(
+        cli_host: Option<IpAddr>,
+        cli_port: Option<u16>,
+    ) -> Result<Self, ConfigError> {
         debug!("Reading settings.");
         let mut config_builder = Config::builder();
-        // Start off by merging in the "default" configuration file
         config_builder = config_builder.add_source(File::with_name("goldfish").required(false));
         config_builder = config_builder.add_source(Environment::with_prefix("goldfish"));
         let default: Settings = Settings::default();
         let parsed_config = config_builder.build()?;
         let parsed_settings: SettingsOptions = parsed_config.try_deserialize()?;
         let settings = Settings {
-            ip_address: parsed_settings.ip_address.unwrap_or(default.ip_address),
-            port: parsed_settings.port.unwrap_or(default.port),
+            ip_address: cli_host
+                .or(parsed_settings.ip_address)
+                .unwrap_or(default.ip_address),
+            port: cli_port.or(parsed_settings.port).unwrap_or(default.port),
         };
         debug!("Settings = {:?}", &settings);
         Ok(settings)

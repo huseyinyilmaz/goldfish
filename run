@@ -2,7 +2,6 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MANIFEST="${MANIFEST:-$SCRIPT_DIR/Cargo.toml}"
 CRITERION_DIR="$SCRIPT_DIR/target/criterion"
 BASELINE_DIR="$SCRIPT_DIR/target/criterion.baseline"
 
@@ -12,12 +11,16 @@ Usage: run <command> [options]
 
 Commands:
   build                           cargo build
-  build --release                 cargo build --release --locked
+  build_release                   cargo build --release --locked
+  run_release                     build release binary and run it
+  run_memcached                   start memcached via Docker on port 11211
   check                           cargo check
   test [name]                     cargo test (optional test name filter)
   fmt                             cargo fmt --check
   clippy                          cargo clippy -D warnings
-  bench                           run benchmarks against saved baseline
+  benchmark [--host HOST] [--port PORT]
+                                  run Python benchmark against a server
+  bench                           run criterion benchmarks against saved baseline
   bench baseline create [name]    create/replace a baseline
   bench baseline delete [name]    delete a baseline
   bench baseline list             list all baselines
@@ -29,22 +32,32 @@ case "${1:-help}" in
     build)
         shift
         if [ "${1:-}" = "--release" ]; then
-            exec cargo build --release --locked --manifest-path="$MANIFEST"
+            exec cargo build --release --locked 
         fi
-        exec cargo build --manifest-path="$MANIFEST"
+        exec cargo build 
+        ;;
+    build_release)
+        exec cargo build --release --locked
+        ;;
+    run_release)
+        cargo build --release --locked
+        exec "$SCRIPT_DIR/target/release/goldfish"
+        ;;
+    run_memcached)
+        exec docker run --rm -p 11211:11211 memcached:latest
         ;;
     check)
-        exec cargo check --manifest-path="$MANIFEST"
+        exec cargo check 
         ;;
     test)
         shift
-        exec cargo test --manifest-path="$MANIFEST" -- "$@"
+        exec cargo test  -- "$@"
         ;;
     fmt)
-        exec cargo fmt --manifest-path="$MANIFEST" -- --check
+        exec cargo fmt  -- --check
         ;;
     clippy)
-        exec cargo clippy --manifest-path="$MANIFEST" -- -D warnings
+        exec cargo clippy  -- -D warnings
         ;;
     bench)
         shift
@@ -61,7 +74,7 @@ case "${1:-help}" in
                             esac
                         fi
                         echo "Running benchmarks to create baseline${name:+.$name}..."
-                        cargo criterion --manifest-path="$MANIFEST"
+                        cargo criterion 
                         target="${BASELINE_DIR}${name:+.$name}"
                         rm -rf "$target"
                         cp -r "$CRITERION_DIR" "$target"
@@ -118,7 +131,7 @@ case "${1:-help}" in
                 rm -rf "$CRITERION_DIR"
                 cp -r "$source" "$CRITERION_DIR"
                 echo "Running benchmarks against baseline '$name'..."
-                exec cargo criterion --manifest-path="$MANIFEST"
+                exec cargo criterion 
                 ;;
             *)
                 if [ $# -gt 0 ]; then
@@ -133,9 +146,14 @@ case "${1:-help}" in
                 rm -rf "$CRITERION_DIR"
                 cp -r "$BASELINE_DIR" "$CRITERION_DIR"
                 echo "Running benchmarks against saved baseline..."
-                exec cargo criterion --manifest-path="$MANIFEST"
+                exec cargo criterion 
                 ;;
         esac
+        ;;
+    benchmark)
+        shift
+        exec uv run --with-requirements "$SCRIPT_DIR/scripts/requirements.txt" \
+            "$SCRIPT_DIR/scripts/benchmark.py" "$@"
         ;;
     help|--help|-h)
         usage

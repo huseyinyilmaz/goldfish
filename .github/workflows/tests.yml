@@ -2,10 +2,6 @@ on: [push, pull_request]
 
 name: Testing
 
-defaults:
-  run:
-    working-directory: v3
-
 jobs:
   build:
     name: Build
@@ -20,7 +16,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --locked --manifest-path=v3/Cargo.toml
+          args: --release --locked
 
   check:
     name: Check
@@ -35,7 +31,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-          args: --manifest-path=v3/Cargo.toml
 
   test:
     name: Test Suite
@@ -50,7 +45,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --manifest-path=v3/Cargo.toml
 
   fmt:
     name: Rustfmt
@@ -66,7 +60,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all --manifest-path=v3/Cargo.toml -- --check
+          args: --all -- --check
 
   clippy:
     name: Clippy
@@ -82,4 +76,4 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --manifest-path=v3/Cargo.toml -- -D warnings
+          args: -- -D warnings

@@ -1,6 +1,6 @@
 mod handler;
 mod parser;
-mod settings;
+pub mod settings;
 pub mod state;
 mod utils;
 
@@ -13,6 +13,7 @@ use nom::Parser;
 use parser::command::Command;
 use parser::main_parser::starts_with_command_keyword;
 use parser::make_parser;
+use settings::Settings;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::{net::TcpListener, time::sleep};
 
@@ -79,10 +80,11 @@ pub fn process_input_buffered(
     true
 }
 
-async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+async fn run_server(
+    app_settings: Settings,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     info!("Starting Goldfish Server.");
     sleep(Duration::from_secs(1)).await;
-    let app_settings = settings::Settings::new()?;
     let app_state = state::State::new();
     let app_state_arc = Arc::new(RwLock::new(app_state));
     let socket_addr = SocketAddr::new(app_settings.ip_address, app_settings.port);
@@ -130,6 +132,6 @@ async fn run_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     }
 }
 
-pub async fn run() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    run_server().await
+pub async fn run(app_settings: Settings) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    run_server(app_settings).await
 }
