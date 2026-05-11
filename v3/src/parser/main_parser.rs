@@ -13,15 +13,9 @@ fn make_malformed_parser<'a>(
 ) -> impl Parser<&'a [u8], Output = Command, Error = nom::error::Error<&'a [u8]>> {
     fn malformed_parser(input: &[u8]) -> IResult<&[u8], Command, nom::error::Error<&[u8]>> {
         let (remaining, _) = nom::branch::alt((
-            tag("set"),
-            tag("replace"),
-            tag("append"),
-            tag("prepend"),
-            tag("cas"),
             tag("incr"),
             tag("decr"),
             tag("flush_all"),
-            tag("add"),
             tag("gats"),
             tag("gat"),
             tag("gets"),
@@ -50,9 +44,40 @@ fn make_malformed_parser<'a>(
     malformed_parser
 }
 
+pub(crate) const COMMAND_KEYWORD_PREFIXES: &[&[u8]] = &[
+    b"set ",
+    b"add ",
+    b"replace ",
+    b"append ",
+    b"prepend ",
+    b"cas ",
+    b"get ",
+    b"gets ",
+    b"gat ",
+    b"gats ",
+    b"delete ",
+    b"incr ",
+    b"decr ",
+    b"touch ",
+    b"flush_all",
+    b"stats",
+    b"version",
+    b"quit",
+];
+
+pub(crate) fn starts_with_command_keyword(buf: &[u8]) -> bool {
+    COMMAND_KEYWORD_PREFIXES.iter().any(|p| buf.starts_with(p))
+}
+
 fn make_cannotparse_parser<'a>(
 ) -> impl Parser<&'a [u8], Output = Command, Error = nom::error::Error<&'a [u8]>> {
     |input: &'a [u8]| {
+        if starts_with_command_keyword(input) {
+            return Err(nom::Err::Error(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Eof,
+            )));
+        }
         if let Some(pos) = input.windows(2).position(|w| w == b"\r\n") {
             Ok((
                 &input[pos + 2..],
