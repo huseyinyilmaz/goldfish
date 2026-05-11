@@ -1,4 +1,4 @@
-VERSION = $(shell cargo pkgid | sed 's!.*\@!!')
+VERSION = $(shell cargo pkgid | sed 's!.*#!!')
 
 .PHONY: version check prerelease release
 
