@@ -41,15 +41,23 @@ pub enum Command {
         value: Vec<u8>,
         value_size: u32,
     },
-    /*
-    Cas,
-    */
+    Cas {
+        key: Vec<u8>,
+        flags: i32,
+        timeout: i64,
+        noreply: bool,
+        value: Vec<u8>,
+        value_size: u32,
+        cas_unique: u64,
+    },
     // Retrieval commands
     Get {
         keys: Vec<Vec<u8>>,
     },
+    Gets {
+        keys: Vec<Vec<u8>>,
+    },
     /*
-    Gets,
     Gat,
     Gats,
     */

@@ -116,20 +116,6 @@ fn test_prepend_updates_value() {
 }
 
 #[test]
-fn test_cas_not_implemented() {
-    let state = common::new_state();
-    let result = common::process(&state, "cas key 0 0 5 0\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
-}
-
-#[test]
-fn test_gets_not_implemented() {
-    let state = common::new_state();
-    let result = common::process(&state, "gets key\r\n");
-    assert_eq!(result, "ERROR\r\n");
-}
-
-#[test]
 fn test_gat_not_implemented() {
     let state = common::new_state();
     let result = common::process(&state, "gat 3600 key\r\n");

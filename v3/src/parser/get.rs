@@ -32,3 +32,16 @@ pub fn make_get_parser<'a>(
     }
     get_parser
 }
+
+pub fn make_gets_parser<'a>(
+) -> impl Parser<&'a [u8], Output = Command, Error = nom::error::Error<&'a [u8]>> {
+    fn gets_parser(input: &[u8]) -> nom::IResult<&[u8], Command, nom::error::Error<&[u8]>> {
+        let (input, _) = tag("gets")(input)?;
+        let (input, _) = space1(input)?;
+        let (input, keys) = parse_keys(input)?;
+        let (input, _) = line_ending(input)?;
+        let command: Command = Command::Gets { keys };
+        Ok((input, command))
+    }
+    gets_parser
+}

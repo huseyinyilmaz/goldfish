@@ -1,5 +1,6 @@
 pub mod add;
 pub mod append;
+pub mod cas;
 pub mod command;
 pub mod decr;
 pub mod delete;
