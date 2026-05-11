@@ -6,9 +6,10 @@ use std::sync::atomic::Ordering;
 
 use super::{
     add::handle_add, append::handle_append, cas::handle_cas, decr::handle_decr,
-    delete::handle_delete, flush_all::handle_flush_all, get::handle_get, get::handle_gets,
-    incr::handle_incr, prepend::handle_prepend, replace::handle_replace, set::handle_set,
-    stats::handle_stats, version::handle_version,
+    delete::handle_delete, flush_all::handle_flush_all, gat::handle_gat, gat::handle_gats,
+    get::handle_get, get::handle_gets, incr::handle_incr, prepend::handle_prepend,
+    replace::handle_replace, set::handle_set, stats::handle_stats, touch::handle_touch,
+    version::handle_version,
 };
 
 pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
@@ -53,6 +54,25 @@ pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut
                 .cmd_set
                 .fetch_add(1, Ordering::Relaxed);
             handle_prepend(state, command, output);
+        }
+        Command::Touch { .. } => {
+            handle_touch(state, command, output);
+        }
+        Command::Gat { .. } => {
+            state
+                .read()
+                .unwrap()
+                .cmd_get
+                .fetch_add(1, Ordering::Relaxed);
+            handle_gat(state, command, output);
+        }
+        Command::Gats { .. } => {
+            state
+                .read()
+                .unwrap()
+                .cmd_get
+                .fetch_add(1, Ordering::Relaxed);
+            handle_gats(state, command, output);
         }
         Command::Incr { .. } => {
             handle_incr(state, command, output);

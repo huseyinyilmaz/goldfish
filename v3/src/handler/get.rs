@@ -37,12 +37,7 @@ fn append_value_with_cas(
     output.extend_from_slice(b"\r\n");
 }
 
-fn process_keys(
-    state: &State,
-    keys: &[Vec<u8>],
-    output: &mut Vec<u8>,
-    with_cas: bool,
-) -> bool {
+fn process_keys(state: &State, keys: &[Vec<u8>], output: &mut Vec<u8>, with_cas: bool) -> bool {
     let now = SystemTime::now();
     let mut found = false;
     for key in keys {

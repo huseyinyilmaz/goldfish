@@ -46,8 +46,8 @@ All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) 
 |---|---|---|
 | `get` | ✅ | Full support, including multi-key |
 | `gets` | ✅ | Like get but includes cas_unique in VALUE line |
-| `gat` | ❌ | |
-| `gats` | ❌ | |
+| `gat` | ✅ | Get and touch — returns value and updates expiration |
+| `gats` | ✅ | Get and touch with CAS — returns value+cas and updates expiration |
 
 ### Other Commands
 
@@ -55,7 +55,7 @@ All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) 
 |---|---|---|
 | `delete` | ✅ | Full support, including `noreply` |
 | `incr` / `decr` | ✅ | Full support, including `noreply` |
-| `touch` | ❌ | |
+| `touch` | ✅ | Update key expiration — TOUCHED/NOT_FOUND |
 | `stats` | ✅ | General stats with counter tracking (cmd_get/cmd_set/get_hits/get_misses) |
 | `flush_all` | ✅ | Immediate flush (delay parsed but not applied) |
 | `version` | ✅ | |

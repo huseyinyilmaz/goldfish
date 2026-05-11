@@ -116,20 +116,6 @@ fn test_prepend_updates_value() {
 }
 
 #[test]
-fn test_gat_not_implemented() {
-    let state = common::new_state();
-    let result = common::process(&state, "gat 3600 key\r\n");
-    assert_eq!(result, "ERROR\r\n");
-}
-
-#[test]
-fn test_gats_not_implemented() {
-    let state = common::new_state();
-    let result = common::process(&state, "gats 3600 key\r\n");
-    assert_eq!(result, "ERROR\r\n");
-}
-
-#[test]
 fn test_delete_not_found() {
     let state = common::new_state();
     let result = common::process(&state, "delete key\r\n");
@@ -218,13 +204,6 @@ fn test_decr_from_set_string_fails() {
         result,
         "CLIENT_ERROR cannot increment or decrement non-numeric value\r\n"
     );
-}
-
-#[test]
-fn test_touch_not_implemented() {
-    let state = common::new_state();
-    let result = common::process(&state, "touch key 3600\r\n");
-    assert_eq!(result, "ERROR\r\n");
 }
 
 #[test]

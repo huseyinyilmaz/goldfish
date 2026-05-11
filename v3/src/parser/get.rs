@@ -7,7 +7,7 @@ use nom::{
     Parser,
 };
 
-fn parse_keys(input: &[u8]) -> nom::IResult<&[u8], Vec<Vec<u8>>> {
+pub(crate) fn parse_keys(input: &[u8]) -> nom::IResult<&[u8], Vec<Vec<u8>>> {
     let (input, first_key) = is_not(" \r\n\t")(input)?;
     let (input, more_keys) = many0(preceded(space1, is_not(" \r\n\t"))).parse(input)?;
     let mut keys = vec![first_key.to_vec()];
