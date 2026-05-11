@@ -11,6 +11,7 @@ use std::time::Duration;
 use log::{debug, info};
 use nom::Parser;
 use parser::command::Command;
+use parser::main_parser::starts_with_command_keyword;
 use parser::make_parser;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::{net::TcpListener, time::sleep};
@@ -33,17 +34,6 @@ pub fn process_input(
     true
 }
 
-const COMMAND_KEYWORD_PREFIXES: &[&[u8]] = &[
-    b"set ", b"add ", b"replace ", b"append ", b"prepend ", b"cas ",
-    b"get ", b"gets ", b"gat ", b"gats ",
-    b"delete ", b"incr ", b"decr ", b"touch ",
-    b"flush_all", b"stats", b"version", b"quit",
-];
-
-fn starts_with_command_keyword(buf: &[u8]) -> bool {
-    COMMAND_KEYWORD_PREFIXES.iter().any(|p| buf.starts_with(p))
-}
-
 pub fn process_input_buffered(
     state: &Arc<RwLock<state::State>>,
     buf: &mut Vec<u8>,
@@ -63,24 +53,27 @@ pub fn process_input_buffered(
                     handler::handle_command(state, command, output);
                     Some(consumed)
                 }
-                Err(_) => None,
+                Err(nom::Err::Incomplete(_)) => None,
+                Err(_) => Some(0),
             }
         };
         match consumed {
             Some(n) => {
-                buf.drain(..n);
-            }
-            None => {
-                if starts_with_command_keyword(buf) {
+                if n > 0 {
+                    buf.drain(..n);
+                } else if starts_with_command_keyword(buf) && !buf.windows(2).any(|w| w == b"\r\n")
+                {
                     return true;
-                }
-                if let Some(pos) = buf.windows(2).position(|w| w == b"\r\n") {
-                    buf.drain(..pos + 2);
                 } else {
-                    buf.clear();
+                    if let Some(pos) = buf.windows(2).position(|w| w == b"\r\n") {
+                        buf.drain(..pos + 2);
+                    } else {
+                        buf.clear();
+                    }
+                    output.extend_from_slice(b"ERROR\r\n");
                 }
-                output.extend_from_slice(b"ERROR\r\n");
             }
+            None => return true,
         }
     }
     true

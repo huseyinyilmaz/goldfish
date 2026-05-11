@@ -2,8 +2,10 @@ use std::str::{from_utf8, FromStr};
 
 use super::command::Command;
 use nom::{
-    bytes::complete::{is_not, tag, take},
-    character::complete::{digit1, i64, line_ending, space1},
+    bytes::complete::{is_not, tag},
+    bytes::streaming::take,
+    character::complete::{digit1, i64, space1},
+    character::streaming::line_ending,
     combinator::opt,
     IResult, Parser,
 };

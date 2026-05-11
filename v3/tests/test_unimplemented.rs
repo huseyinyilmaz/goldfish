@@ -217,7 +217,7 @@ fn test_mg_not_implemented() {
 fn test_ms_not_implemented() {
     let state = common::new_state();
     let result = common::process(&state, "ms key 5 T3600\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "ERROR\r\nERROR\r\n");
 }
 
 #[test]

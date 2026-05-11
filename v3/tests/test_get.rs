@@ -144,5 +144,3 @@ fn test_get_multiple_keys_three_keys() {
         "VALUE x 0 1\r\na\r\nVALUE y 0 1\r\nb\r\nVALUE z 0 1\r\nc\r\nEND\r\n"
     );
 }
-
-

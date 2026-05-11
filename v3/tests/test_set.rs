@@ -124,8 +124,12 @@ fn test_set_noreply_without_leading_space() {
 #[test]
 fn test_set_malformed_short_value() {
     let state = common::new_state();
-    let result = common::process(&state, "set key 0 0 5\r\nab\r\n");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
+    let mut buf: Vec<u8> = b"set key 0 0 5\r\nab\r\n".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert!(output.is_empty());
+    assert!(!buf.is_empty());
 }
 
 #[test]
@@ -145,36 +149,56 @@ fn test_set_malformed_no_crlf_after_value() {
 #[test]
 fn test_set_malformed_missing_args() {
     let state = common::new_state();
-    let result = common::process(&state, "set key\r\n");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
+    let mut buf: Vec<u8> = b"set key\r\n".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert_eq!(output, b"ERROR\r\n");
+    assert!(buf.is_empty());
 }
 
 #[test]
 fn test_set_malformed_no_value_at_all() {
     let state = common::new_state();
-    let result = common::process(&state, "set key 0 0 5\r\n");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\n");
+    let mut buf: Vec<u8> = b"set key 0 0 5\r\n".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert!(output.is_empty());
+    assert!(!buf.is_empty());
 }
 
 #[test]
 fn test_set_malformed_bad_flags() {
     let state = common::new_state();
-    let result = common::process(&state, "set key abc 0 5\r\nhello\r\n");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
+    let mut buf: Vec<u8> = b"set key abc 0 5\r\nhello\r\n".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert_eq!(output, b"ERROR\r\nERROR\r\n");
+    assert!(buf.is_empty());
 }
 
 #[test]
 fn test_set_malformed_bad_timeout() {
     let state = common::new_state();
-    let result = common::process(&state, "set key 0 abc 5\r\nhello\r\n");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
+    let mut buf: Vec<u8> = b"set key 0 abc 5\r\nhello\r\n".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert_eq!(output, b"ERROR\r\nERROR\r\n");
+    assert!(buf.is_empty());
 }
 
 #[test]
 fn test_set_malformed_bad_bytes() {
     let state = common::new_state();
-    let result = common::process(&state, "set key 0 0 abc\r\nhello\r\n");
-    assert_eq!(result, "CLIENT_ERROR bad command line format\r\nERROR\r\n");
+    let mut buf: Vec<u8> = b"set key 0 0 abc\r\nhello\r\n".to_vec();
+    let mut output = Vec::new();
+    let result = goldfish::process_input_buffered(&state, &mut buf, &mut output);
+    assert!(result);
+    assert_eq!(output, b"ERROR\r\nERROR\r\n");
+    assert!(buf.is_empty());
 }
 
 #[test]

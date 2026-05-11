@@ -70,15 +70,11 @@ fn test_baseline_whole_batch_works() {
     }
 }
 
-/// Demonstrates the TCP-chunking bug.
+/// Verifies that pipelined commands survive TCP chunking boundaries.
 ///
-/// Splits the batch mid-data, feeds each chunk through separate
-/// `process_input` calls.  With the current implementation the
-/// catch-all `CannotParse` consumes the partial data AND subsequent
-/// commands, so keys after the split point are lost.
-///
-/// This test FAILS on the current code and will PASS after the
-/// persistent-buffer fix is applied.
+/// Splits the batch mid-data and feeds each chunk through
+/// `process_input_buffered` with a persistent buffer, simulating
+/// two separate TCP reads.
 #[test]
 fn test_pipeline_survives_tcp_chunking() {
     let state = common::new_state();
@@ -95,17 +91,17 @@ fn test_pipeline_survives_tcp_chunking() {
     let split = 65_536;
     let (chunk1, chunk2) = batch.split_at(split);
 
-    // First "read" ── processes ~15 complete commands + a split command tail.
-    let mut out1 = Vec::new();
-    goldfish::process_input(&state, chunk1, &mut out1);
+    // Persistent buffer across "reads", same as the real server.
+    let mut buf = Vec::new();
+    let mut all_output = Vec::new();
 
-    // Second "read" ── receives the rest of the split data + remaining commands.
-    let mut out2 = Vec::new();
-    goldfish::process_input(&state, chunk2, &mut out2);
+    buf.extend_from_slice(chunk1);
+    goldfish::process_input_buffered(&state, &mut buf, &mut all_output);
 
-    // Combine all responses.
-    let mut all_output = out1;
-    all_output.extend_from_slice(&out2);
+    buf.extend_from_slice(chunk2);
+    goldfish::process_input_buffered(&state, &mut buf, &mut all_output);
+    eprintln!("ALL OUTPUT: {:?}", String::from_utf8_lossy(&all_output));
+    eprintln!("BUF2 len={}", buf.len());
     let output_str = String::from_utf8_lossy(&all_output);
     let stored = output_str.matches("STORED").count();
     let client_errors = output_str.matches("CLIENT_ERROR").count();

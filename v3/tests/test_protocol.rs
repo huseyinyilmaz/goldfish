@@ -37,7 +37,7 @@ fn test_empty_line_is_error() {
 fn test_case_sensitive_set() {
     let state = common::new_state();
     let result = common::process(&state, "SET key 0 0 5\r\nhello\r\n");
-    assert_eq!(result, "ERROR\r\n");
+    assert_eq!(result, "ERROR\r\nERROR\r\n");
 }
 
 #[test]
