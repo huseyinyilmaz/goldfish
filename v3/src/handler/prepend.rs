@@ -30,6 +30,7 @@ pub fn handle_prepend(state: &Arc<RwLock<State>>, command: Command, output: &mut
                 timeout: existing.timeout,
                 flags: existing.flags,
                 time: SystemTime::now(),
+                cas_unique: 0,
             };
             app_state.set_key(key, data);
             app_state.increment_total_items();

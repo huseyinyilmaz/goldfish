@@ -38,14 +38,14 @@ All other commands (cas, gets, gat, gats, touch, meta commands, admin commands) 
 | `replace` | ✅ | Full support, including `noreply` |
 | `append` | ✅ | Preserves original flags and exptime |
 | `prepend` | ✅ | Preserves original flags and exptime |
-| `cas` | ❌ | |
+| `cas` | ✅ | Check-and-set with CAS token — STORED/EXISTS/NOT_FOUND |
 
 ### Retrieval Commands
 
 | Command | Status | Notes |
 |---|---|---|
 | `get` | ✅ | Full support, including multi-key |
-| `gets` | ❌ | Requires CAS tracking |
+| `gets` | ✅ | Like get but includes cas_unique in VALUE line |
 | `gat` | ❌ | |
 | `gats` | ❌ | |
 

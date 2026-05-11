@@ -35,6 +35,7 @@ pub fn handle_add(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec
                 timeout: normalize_timeout(timeout),
                 flags,
                 time: SystemTime::now(),
+                cas_unique: 0,
             };
             app_state.set_key(key, data);
             app_state.increment_total_items();

@@ -136,6 +136,44 @@ flush_all [delay] [noreply]\r\n
 |---|---|
 | `OK\r\n` | Success |
 
+## Retrieval command: `gets`
+
+**Request:**
+
+```
+gets <key1> [<key2> ...]\r\n
+```
+
+**Response** (zero or more items, terminated by `END`):
+
+```
+VALUE <key> <flags> <bytes> <cas_unique>\r\n
+<data block>\r\n
+...
+END\r\n
+```
+
+Same semantics as `get` but each VALUE line includes a unique CAS token.
+
+## Check and Set: `cas`
+
+**Request:**
+
+```
+cas <key> <flags> <exptime> <bytes> <cas_unique> [noreply]\r\n
+<data block>\r\n
+```
+
+Same fields as `set` plus `<cas_unique>` — a 64-bit opaque CAS token (obtained from a prior `gets` response).
+
+### Responses
+
+| Response | When |
+|---|---|
+| `STORED\r\n` | Key exists and provided `cas_unique` matches |
+| `EXISTS\r\n` | Key exists but `cas_unique` does not match (modified since last `gets`) |
+| `NOT_FOUND\r\n` | Key does not exist |
+
 ## Deletion command: `delete`
 
 **Request:**
@@ -212,5 +250,6 @@ Response: none (server closes connection).
 | `quit` | Yes | |
 | `flush_all` | Yes | Immediate flush (delay is parsed but not applied) |
 | `stats` | Yes | General stats with counter tracking |
-| `cas` | No | |
+| `cas` | Yes | Check-and-set with CAS token — returns `STORED`/`EXISTS`/`NOT_FOUND` |
+| `gets` | Yes | Like `get` but includes `cas_unique` in VALUE line |
 | `gets` | No | |

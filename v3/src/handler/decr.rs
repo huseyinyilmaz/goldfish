@@ -28,6 +28,7 @@ pub fn handle_decr(state: &Arc<RwLock<State>>, command: Command, output: &mut Ve
                         timeout: existing.timeout,
                         flags: existing.flags,
                         time: SystemTime::now(),
+                        cas_unique: 0,
                     };
                     app_state.set_key(key, data);
                     if !noreply {

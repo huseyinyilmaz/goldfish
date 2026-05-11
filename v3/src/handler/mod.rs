@@ -1,5 +1,6 @@
 mod add;
 mod append;
+mod cas;
 mod decr;
 mod delete;
 mod flush_all;

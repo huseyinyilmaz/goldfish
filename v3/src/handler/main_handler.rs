@@ -5,9 +5,10 @@ use crate::{parser::command::Command, state::State};
 use std::sync::atomic::Ordering;
 
 use super::{
-    add::handle_add, append::handle_append, decr::handle_decr, delete::handle_delete,
-    flush_all::handle_flush_all, get::handle_get, incr::handle_incr, prepend::handle_prepend,
-    replace::handle_replace, set::handle_set, stats::handle_stats, version::handle_version,
+    add::handle_add, append::handle_append, cas::handle_cas, decr::handle_decr,
+    delete::handle_delete, flush_all::handle_flush_all, get::handle_get, get::handle_gets,
+    incr::handle_incr, prepend::handle_prepend, replace::handle_replace, set::handle_set,
+    stats::handle_stats, version::handle_version,
 };
 
 pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut Vec<u8>) {
@@ -59,6 +60,14 @@ pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut
         Command::Decr { .. } => {
             handle_decr(state, command, output);
         }
+        Command::Cas { .. } => {
+            state
+                .read()
+                .unwrap()
+                .cmd_set
+                .fetch_add(1, Ordering::Relaxed);
+            handle_cas(state, command, output);
+        }
         Command::Get { .. } => {
             state
                 .read()
@@ -66,6 +75,14 @@ pub fn handle_command(state: &Arc<RwLock<State>>, command: Command, output: &mut
                 .cmd_get
                 .fetch_add(1, Ordering::Relaxed);
             handle_get(state, command, output);
+        }
+        Command::Gets { .. } => {
+            state
+                .read()
+                .unwrap()
+                .cmd_get
+                .fetch_add(1, Ordering::Relaxed);
+            handle_gets(state, command, output);
         }
         Command::FlushAll { .. } => {
             handle_flush_all(state, command, output);

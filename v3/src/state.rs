@@ -14,6 +14,7 @@ pub struct Data {
     pub timeout: i64,
     pub flags: i32,
     pub time: SystemTime,
+    pub cas_unique: u64,
 }
 
 #[derive(Debug)]
@@ -25,6 +26,7 @@ pub struct State {
     pub total_items: AtomicU64,
     pub get_hits: AtomicU64,
     pub get_misses: AtomicU64,
+    next_cas: u64,
 }
 
 impl Default for State {
@@ -43,10 +45,13 @@ impl State {
             total_items: AtomicU64::new(0),
             get_hits: AtomicU64::new(0),
             get_misses: AtomicU64::new(0),
+            next_cas: 1,
         }
     }
 
-    pub fn set_key(&mut self, key: Vec<u8>, data: Data) -> Option<Data> {
+    pub fn set_key(&mut self, key: Vec<u8>, mut data: Data) -> Option<Data> {
+        data.cas_unique = self.next_cas;
+        self.next_cas += 1;
         self.data.insert(key, data)
     }
 
@@ -80,5 +85,9 @@ impl State {
 
     pub fn increment_total_items(&self) {
         self.total_items.fetch_add(1, Ordering::Relaxed);
+    }
+
+    pub fn get_cas(&self, key: &[u8]) -> Option<u64> {
+        self.data.get(key).map(|d| d.cas_unique)
     }
 }
