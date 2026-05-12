@@ -19,5 +19,12 @@ prerelease:
 check: prerelease
 
 release: prerelease
+	git add Cargo.lock; \
+	if git diff --cached --quiet; then \
+		echo "Cargo.lock unchanged"; \
+	else \
+		git commit -m "Update Cargo.lock for v$(VERSION)"; \
+	fi
 	git tag v$(VERSION);
-	git push origin --tags
+	git push origin --tags;
+	git push origin
