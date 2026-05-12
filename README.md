@@ -10,13 +10,41 @@ Concurrent memcached implementation in Rust. Drop-in replacement for memcached t
 - **Pipeline friendly** — processes pipelined commands in a single batch
 - **Async** — built on `tokio` for efficient connection handling
 
-## Quick start
+## Installation
+
+### From source
 
 ```sh
-git clone <repo>
+git clone https://github.com/huseyinyilmaz/goldfish.git
 cd goldfish
 cargo build --release --locked
 ./target/release/goldfish
+```
+
+### From GitHub releases
+
+Pre-built binaries for Linux, macOS, and Windows are available on the
+[Releases page](https://github.com/huseyinyilmaz/goldfish/releases).
+
+```sh
+# Linux
+curl -L https://github.com/huseyinyilmaz/goldfish/releases/latest/download/goldfish-linux -o goldfish
+chmod +x ./goldfish
+
+# macOS
+curl -L https://github.com/huseyinyilmaz/goldfish/releases/latest/download/goldfish-macos -o goldfish
+chmod +x ./goldfish
+
+# Windows (PowerShell)
+curl -L https://github.com/huseyinyilmaz/goldfish/releases/latest/download/goldfish-windows -o goldfish.exe
+./goldfish.exe
+```
+
+### Using Docker
+
+```sh
+docker pull huseyinyilmaz/goldfish
+docker run -p 11211:11211 huseyinyilmaz/goldfish
 ```
 
 Connect with any memcached client:
